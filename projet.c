@@ -15,14 +15,20 @@
 
 //INITIALISATION DE LA DB
 sqlite3 *db;
+
+int InitDb()
+{
+printf("Opening db \n");
 // pointer to SQLite database connection object
 int rc = sqlite3_open("IPCatalog.db", &db);
 if (rc != SQLITE_OK) {
-  fprintf(stderr, "Failed to open database: %s\n", sqlite3_errmsg(db));
+  printf("Failed to open database: %s\n", sqlite3_errmsg(db));
   sqlite3_close(db);
-  return 1;
+  exit(1);
+  
 } else {
-  fprintf(stdout, "Successfully opened database.\n");
+  printf("Successfully opened database.\n");
+}
 }
 
 int ip[5];
@@ -108,11 +114,17 @@ void genereIp(int a, int b, int c, int d, int masque){
 	}
 	ip[4]=masque;
 	
-	printf("allo");
+	
 	//INSERT THE GENERATED IP INTO THE DB
 	char sql[100];
-	printf(sql, "INSERT INTO ip_addresses (address, mask) VALUES ('%d.%d.%d.%d', %d);", ip[0], ip[1], ip[2], ip[3], ip[4]);
-	sqlite3_exec(db, sql, NULL, NULL, NULL);
+	
+	sprintf(sql, "INSERT INTO ip_addresses (address, mask) VALUES ('%d.%d.%d.%d', %d);", ip[0], ip[1], ip[2], ip[3], ip[4]);
+	int rc = sqlite3_exec(db, sql, NULL, NULL, NULL);
+	if (rc != SQLITE_OK) 
+	{
+    printf("Failed to insert IP address into database: %s\n", sqlite3_errmsg(db));
+	}
+	//sqlite3_finalize(db);
 	
 	
 	
@@ -205,6 +217,7 @@ void menu() {
 	GtkWidget *image;
 
 	gtk_init(NULL, NULL);
+	
 
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(window), "Menu");
@@ -247,7 +260,10 @@ void menu() {
 	gtk_main();
 }
 
+//INITIALIZATION DE LA DB EN MEME TEMPS QUE LE MENU POUR LA PERFORMANCE DE L'APP (DB DEJA PRETE QUAND NEEDED)
 int main(int argc, char *argv[]) {
+	InitDb();
 	menu();
+	
 	return EXIT_SUCCESS;
 }
