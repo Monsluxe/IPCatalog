@@ -13,6 +13,17 @@
 #define MIN_MASK_VALUE 8
 #define MAX_MASK_VALUE 30
 
+//INITIALISATION DE LA DB
+sqlite3 *db;
+// pointer to SQLite database connection object
+int rc = sqlite3_open("IPCatalog.db", &db);
+if (rc != SQLITE_OK) {
+  fprintf(stderr, "Failed to open database: %s\n", sqlite3_errmsg(db));
+  sqlite3_close(db);
+  return 1;
+} else {
+  fprintf(stdout, "Successfully opened database.\n");
+}
 
 int ip[5];
 // Cette fonction ne renvoie rien, elle modifie directement le tableau ip et la variable masque.
@@ -96,6 +107,15 @@ void genereIp(int a, int b, int c, int d, int masque){
 		masque=0;
 	}
 	ip[4]=masque;
+	
+	printf("allo");
+	//INSERT THE GENERATED IP INTO THE DB
+	char sql[100];
+	printf(sql, "INSERT INTO ip_addresses (address, mask) VALUES ('%d.%d.%d.%d', %d);", ip[0], ip[1], ip[2], ip[3], ip[4]);
+	sqlite3_exec(db, sql, NULL, NULL, NULL);
+	
+	
+	
 }
 
 void binaire(int ipBin[4][8]) {
