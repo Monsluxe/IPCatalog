@@ -13,4 +13,6 @@ Adrien code for our IP catalog project with ESGI <br>
 
 gcc -o my_program my_program.c `pkg-config --cflags --libs gtk+-3.0`
 
+<br>
+<b> /!\ THIS PROJECT DOESNT HAVE BRANCHES, PLEASE GIT COMMIT, GIT PULL AND RETEST BEFORE GIT PUSHING ON THE MAIN  /!\ <b>
 
