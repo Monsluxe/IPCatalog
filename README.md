@@ -7,6 +7,7 @@ Adrien code for our IP catalog project with ESGI <br>
 
 - sudo apt-get install libsqlite3-dev <br>
 
+-IPCatalog.db have to be in the development folder
 
 
 <b> COMPILATION : </b> <br>
