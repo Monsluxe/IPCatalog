@@ -32,6 +32,20 @@ if (rc != SQLITE_OK) {
 
 
 
+////////////////////////////////////---------FONCTION QUI ENVOIE LES IPS FAITES PAR L'USER DANS LA DB ---------------/////
+//INSERT THE GENERATED IP INTO THE DB
+	void EnvoiIp(int ip[5])
+	{
+	char sql[100];
+	printf("Adding address to the db");
+	sprintf(sql, "INSERT INTO ip_addresses (address, mask) VALUES ('%d.%d.%d.%d', %d);", ip[0], ip[1], ip[2], ip[3], ip[4]);
+	int rc = sqlite3_exec(db, sql, NULL, NULL, NULL);
+	if (rc != SQLITE_OK) 
+	{
+    printf("Failed to insert IP address into database: %s\n", sqlite3_errmsg(db));
+	}
+	//sqlite3_finalize(db);
+	}
 
 //////////////////////////////////-----------------------------------------------------------------------------////////////
 
@@ -97,12 +111,14 @@ void genereIp(int a, int b, int c, int d, int masque){
                 do {
               		printf("Veuillez entrer votre masque de sous-réseau (entre 16 et 23) : ");
 		            scanf("%d", &masque);
-        	} while (masque < 16 || masque > 23);
+        	}
+        	 while (masque < 16 || masque > 23);
 		}
 	}
 	else{
 		if(a<=127){
 			masque=8;
+			printf("ok j'y suis");
 		}
 		else if(a>127 || a<=191){
 			masque=16;
@@ -117,22 +133,14 @@ void genereIp(int a, int b, int c, int d, int masque){
 		masque=0;
 	}
 	ip[4]=masque;
+	////////////////////////////////----------------------JE TRY JUSTE DES VERIF ICI POUR COMPRENDRE-------------///////////
+	printf("%d",ip[4]);
+	
+	printf("%d",ip[5]);
+
+	EnvoiIp(ip);
 }
 
-////////////////////////////////////---------FONCTION QUI ENVOIE LES IPS FAITES PAR L'USER DANS LA DB ---------------/////
-//INSERT THE GENERATED IP INTO THE DB
-	void EnvoiIp( int ip[])
-	{
-	char sql[100];
-	printf("Adding address to the db");
-	sprintf(sql, "INSERT INTO ip_addresses (address, mask) VALUES ('%d.%d.%d.%d', %d);", ip[0], ip[1], ip[2], ip[3], ip[4]);
-	int rc = sqlite3_exec(db, sql, NULL, NULL, NULL);
-	if (rc != SQLITE_OK) 
-	{
-    printf("Failed to insert IP address into database: %s\n", sqlite3_errmsg(db));
-	}
-	//sqlite3_finalize(db);
-	}
 
 
 //////////////////////////////////-----------------------------------------------------------------------------////////////
