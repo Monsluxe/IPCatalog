@@ -13,9 +13,8 @@
 #define MIN_MASK_VALUE 8
 #define MAX_MASK_VALUE 30
 
-//INITIALISATION DE LA DB
+//////////////////////////////////------------------INITIALISATION DE LA DB--------------------////////////
 sqlite3 *db;
-
 int InitDb()
 {
 printf("Opening db \n");
@@ -30,6 +29,11 @@ if (rc != SQLITE_OK) {
   printf("Successfully opened database.\n");
 }
 }
+
+
+
+
+//////////////////////////////////-----------------------------------------------------------------------------////////////
 
 int ip[5];
 // Cette fonction ne renvoie rien, elle modifie directement le tableau ip et la variable masque.
@@ -113,11 +117,14 @@ void genereIp(int a, int b, int c, int d, int masque){
 		masque=0;
 	}
 	ip[4]=masque;
-	
-	
-	//INSERT THE GENERATED IP INTO THE DB
+}
+
+////////////////////////////////////---------FONCTION QUI ENVOIE LES IPS FAITES PAR L'USER DANS LA DB ---------------/////
+//INSERT THE GENERATED IP INTO THE DB
+	void EnvoiIp( int ip[])
+	{
 	char sql[100];
-	
+	printf("Adding address to the db");
 	sprintf(sql, "INSERT INTO ip_addresses (address, mask) VALUES ('%d.%d.%d.%d', %d);", ip[0], ip[1], ip[2], ip[3], ip[4]);
 	int rc = sqlite3_exec(db, sql, NULL, NULL, NULL);
 	if (rc != SQLITE_OK) 
@@ -125,11 +132,10 @@ void genereIp(int a, int b, int c, int d, int masque){
     printf("Failed to insert IP address into database: %s\n", sqlite3_errmsg(db));
 	}
 	//sqlite3_finalize(db);
-	
-	
-	
-}
+	}
 
+
+//////////////////////////////////-----------------------------------------------------------------------------////////////
 void binaire(int ipBin[4][8]) {
     for (int j = 0; j < 4; j++) {
         int n = ip[j];
@@ -138,7 +144,7 @@ void binaire(int ipBin[4][8]) {
         }
     }
 }
-
+//////////////////////////////////-----------------------------------------------------------------------------////////////
 void hexadecimal(char ipHexa[9]) {
     char hexa[3];
     for (int i = 0; i < 4; i++) {
@@ -146,7 +152,7 @@ void hexadecimal(char ipHexa[9]) {
         strcat(ipHexa, hexa);
     }
 }
-
+//////////////////////////////////-----------------------------------------------------------------------------////////////
 void afficherAdresse(GtkWidget *widget, gpointer data) {
 	int a,b,c,d,masque;
     int choix2 = 0;
@@ -259,10 +265,11 @@ void menu() {
 
 	gtk_main();
 }
-
+//////////////////////////////////-----------------------------------------------------------------------------////////////
 //INITIALIZATION DE LA DB EN MEME TEMPS QUE LE MENU POUR LA PERFORMANCE DE L'APP (DB DEJA PRETE QUAND NEEDED)
 int main(int argc, char *argv[]) {
 	InitDb();
+	EnvoiIp(ip);
 	menu();
 	
 	return EXIT_SUCCESS;
