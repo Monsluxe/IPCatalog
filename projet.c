@@ -12,7 +12,7 @@
 #define MAX_IP_VALUE 255
 #define MIN_MASK_VALUE 8
 #define MAX_MASK_VALUE 30
-
+int ip[5];
 //////////////////////////////////------------------INITIALISATION DE LA DB--------------------////////////
 sqlite3 *db;
 int InitDb()
@@ -44,12 +44,17 @@ if (rc != SQLITE_OK) {
 	{
     printf("Failed to insert IP address into database: %s\n", sqlite3_errmsg(db));
 	}
+	else
+	{
+		printf("ip added to the db :)");
+	}
 	//sqlite3_finalize(db);
+
 	}
 
 //////////////////////////////////-----------------------------------------------------------------------------////////////
 
-int ip[5];
+
 // Cette fonction ne renvoie rien, elle modifie directement le tableau ip et la variable masque.
 void genereIp(int a, int b, int c, int d, int masque){
 	int rep;
@@ -277,7 +282,6 @@ void menu() {
 //INITIALIZATION DE LA DB EN MEME TEMPS QUE LE MENU POUR LA PERFORMANCE DE L'APP (DB DEJA PRETE QUAND NEEDED)
 int main(int argc, char *argv[]) {
 	InitDb();
-	EnvoiIp(ip);
 	menu();
 	
 	return EXIT_SUCCESS;
