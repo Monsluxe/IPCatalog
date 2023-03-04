@@ -254,7 +254,7 @@ void on_button1_clicked(GtkWidget *widget, gpointer data) {
     genereIp(a, b, c, d, masque);
 }
 
-<<<<<<< HEAD
+
 void on_button2_clicked(GtkWidget *widget, gpointer data){
 	afficherAdresse(widget,NULL);
 }
@@ -263,58 +263,6 @@ void on_button3_clicked(GtkWidget *widget, gpointer data){
 	GtkWidget *dialog, *label, *content_area;
 	filtrage();
 }
-=======
-////////-----------------------------------PREMIERE BRIQUE DE FILTRAGE PAR MASQUE---------------------/////
-void on_button3_clicked(GtkWidget *widget, gpointer data)
-	{
-		GtkWidget *dialog, *label, *content_area;
-///////////----------------VAR POUR STOCKER LE MASK CHOISI INIT A 0 -----------------////////////////////
-		int masque = 0;
-		char sqlQuery[1000];
-
-		 //(masque <= 8 || masque >= 30)
-			do 
-			
-			{	
-				printf("Choisissez un masque \n");
-	
-				scanf("%d", &masque);
-				
-				sprintf(sqlQuery, "SELECT address FROM ip_addresses WHERE mask = %d",masque);
-					
-					if (masque < 8 || masque > 30)
-					{
-					
-						printf("Masque incorrect\n");
-				
-					}
-
-			}
-				
-			while (masque < 8 || masque > 30);
-				
-		sqlite3_stmt *stmt;		
-		int rc = sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, NULL);
-
-		if (rc != SQLITE_OK) 
-		{
-			printf("Impossible d'executer la requete %s\n", sqlite3_errmsg(db));
-			sqlite3_free(NULL);
-		} 
-		else 
-		{
-			
-			printf("Adresse IP pour le masque: %d\n",masque);
-//-------------PRINTF DE LOUTPUT DE LA DB DANSLE TERMINAL EN ATTENDANT DE SETUP GTK------------//////
-				while (sqlite3_step(stmt) == SQLITE_ROW) 
-				{
-			
-					printf("%s\n", sqlite3_column_text(stmt, 0));
-            
-				}
-		}
-	}	
->>>>>>> 5ebdf157a59181836e205bc6e1dd52bef117e8d7
 
 void on_button4_clicked(GtkWidget *widget, gpointer data) {
 	GtkWidget *dialog;
