@@ -21,10 +21,11 @@ char sql[100];
 
 //////////////////////////////////------------------INITIALISATION DE LA DB--------------------////////////
 sqlite3 *db;
+
 int InitDb()
 {
 printf("Opening db \n");
-// pointer to SQLite database connection object
+
 int rc = sqlite3_open("IPCatalog.db", &db);
 if (rc != SQLITE_OK) {
   printf("Failed to open database: %s\n", sqlite3_errmsg(db));
@@ -177,6 +178,7 @@ void afficherAdresse(GtkWidget *widget, gpointer data) {
                                          "Sous sa forme binaire", 1, "Sous sa forme décimale", 2,
                                          "Sous sa forme hexadécimale", 3,NULL);
     gtk_widget_show_all(dialog);
+    
     switch(gtk_dialog_run(GTK_DIALOG(dialog))) {
         case 1:
             binaire(ipBin);
@@ -200,6 +202,8 @@ void afficherAdresse(GtkWidget *widget, gpointer data) {
 	default:
 		break;
     }
+    
+    
     GtkWidget *dialog2 = gtk_message_dialog_new(GTK_WINDOW(dialog), GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, message);
     gtk_window_set_title(GTK_WINDOW(dialog2), "Adresse IP");
     gtk_dialog_run(GTK_DIALOG(dialog2));
