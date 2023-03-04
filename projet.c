@@ -205,6 +205,46 @@ void filtrage(){
 	}
 }
 //////////////////////////////////-----------------------------------------------------------------------------////////////
+
+int IdDialogBox()
+{
+ // Create a new dialog box
+		GtkWidget *dialog = gtk_dialog_new ();
+		gtk_window_set_title (GTK_WINDOW (dialog), "Entrer un ID");
+		
+		// Add a message label to the dialog box
+		GtkWidget *label = gtk_label_new ("ENTREZ UN ID");
+		GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+		gtk_box_pack_start (GTK_BOX (content_area), label, FALSE, FALSE, 0);
+		
+		// Add a text entry widget to the dialog box
+		GtkWidget *entry = gtk_entry_new ();
+		gtk_box_pack_start (GTK_BOX (content_area), entry, FALSE, FALSE, 0);
+		
+		// Add an "Enter" button to the dialog box
+		GtkWidget *enter_button = gtk_dialog_add_button (GTK_DIALOG (dialog), "Enter", GTK_RESPONSE_ACCEPT);
+		gtk_widget_set_can_default (enter_button, TRUE);
+		gtk_widget_grab_default (enter_button);
+		
+		// Show the dialog box and wait for a response
+		gtk_widget_show_all (dialog);
+		int response = gtk_dialog_run (GTK_DIALOG (dialog));
+		
+		// Check if the user clicked the "Enter" button
+		if (response == GTK_RESPONSE_ACCEPT)
+{
+    // Get the user input from the text entry widget
+    const char *user_input = gtk_entry_get_text (GTK_ENTRY (entry));
+    
+    // Use the user input (e.g. print it with printf)
+    printf ("You entered: %s\n", user_input);
+    
+    // ...
+}
+
+// Free the dialog box
+gtk_widget_destroy (dialog);
+}
 void afficherAdresse(GtkWidget *widget, gpointer data) {
 	int a,b,c,d,masque;
     int choix2 = 0;
@@ -219,6 +259,11 @@ void afficherAdresse(GtkWidget *widget, gpointer data) {
     
     switch(gtk_dialog_run(GTK_DIALOG(dialog))) {
         case 1:
+        //POPUP POUR CHOISIR L'ID A CHERCHER 
+        
+       IdDialogBox();
+          
+        //ENVOIE DE LA REQUETE SQL
             binaire(ipBin);
             message = "L'adresse IP en binaire est : ";
             for (int i = 0; i < 4; i++) {
@@ -230,10 +275,18 @@ void afficherAdresse(GtkWidget *widget, gpointer data) {
             break;
 
         case 2:
+                //POPUP POUR CHOISIR L'ID A CHERCHER 
+        
+				IdDialogBox();
+          
             message = g_strdup_printf("L'adresse IP est la suivante : %d.%d.%d.%d de masque %d", ip[0], ip[1], ip[2], ip[3], ip[4]);
             break;
 
         case 3:
+                //POPUP POUR CHOISIR L'ID A CHERCHER 
+        
+				IdDialogBox();
+          
 		hexadecimal(ipHexa);
             message = g_strdup_printf("L'adresse IP en hexadécimal est : %s", ipHexa);
             break;
