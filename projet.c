@@ -115,7 +115,7 @@ void genereIp(int a, int b, int c, int d, int masque){
               		printf("Veuillez entrer votre masque de sous-réseau (entre 16 et 23) : ");
 		            scanf("%d", &masque);
         	}
-        	 while (masque < 16 || masque > 23);
+        	 while (masque < 24 || masque > 30);
 		}
 	}
 	else
@@ -221,17 +221,17 @@ void on_button3_clicked(GtkWidget *widget, gpointer data)
 	{
 		GtkWidget *dialog, *label, *content_area;
 ///////////----------------VAR POUR STOCKER LE MASK CHOISI INIT A 0 -----------------////////////////////
-		int mask = 0;
+		int masque = 0;
     
-		printf("choose a mask\n");
+		printf("Choisissez un masque \n");
 	
-		scanf("%d", &mask);
+		scanf("%d", &masque);
 		
-			if (mask < 8 || mask > 32)
+			if (masque <= 8 || masque >= 30)
 			 
 				{
 	
-					sprintf(sql, "SELECT address FROM ip_addresses WHERE mask = %d",mask);
+					sprintf(sql, "SELECT address FROM ip_addresses WHERE mask = %d",masque);
 
 				}
 				
@@ -239,13 +239,13 @@ void on_button3_clicked(GtkWidget *widget, gpointer data)
 
 		if (rc != SQLITE_OK) 
 		{
-			printf("Failed to execute query: %s\n", sqlite3_errmsg(db));
+			printf("Impossible d'executer la requete %s\n", sqlite3_errmsg(db));
 			sqlite3_free(NULL);
 		} 
 		else 
 		{
-			printf("Query executed successfully.\n");
-			printf("Mask: %d\n",mask);
+			printf("SUCCES.\n");
+			printf("Masque: %d\n",masque);
 		}
 	}	
 
