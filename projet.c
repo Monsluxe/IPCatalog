@@ -22,36 +22,60 @@ char sql[100];
 //////////////////////////////////------------------INITIALISATION DE LA DB--------------------////////////
 sqlite3 *db;
 
-int InitDb()
-{
-printf("Opening db \n");
+int InitDb(){
+	printf("Opening db \n");
 
-int rc = sqlite3_open("IPCatalog.db", &db);
-if (rc != SQLITE_OK) {
-  printf("Failed to open database: %s\n", sqlite3_errmsg(db));
-  sqlite3_close(db);
-  exit(1);
+	int rc = sqlite3_open("IPCatalog.db", &db);	
+	if (rc != SQLITE_OK) {
+		printf("Failed to open database: %s\n", sqlite3_errmsg(db));
+  		sqlite3_close(db);
+  		exit(1);
   
-} else {
-  printf("Successfully opened database.\n");
+	}
+	 else {
+  		printf("Successfully opened database.\n");
+	}
 }
+
+void EnvoiIp(int ip[5], char type[10]) {
+    int id = -1;
+
+    // Recherche d'un ID libre dans la table
+    sqlite3_stmt *stmt;
+    int rc = sqlite3_prepare_v2(db, "SELECT MIN(t1.id + 1) FROM ip_addresses AS t1 LEFT JOIN ip_addresses AS t2 ON t1.id + 1 = t2.id WHERE t2.id IS NULL AND t1.id < (SELECT MAX(id) FROM ip_addresses);", -1, &stmt, 0);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+    }
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+        // Un ID libre a été trouvé
+        id = sqlite3_column_int(stmt, 0);
+    }
+    sqlite3_finalize(stmt);
+    // Si aucun ID libre n'a été trouvé, on utilise le MAX(id) + 1
+    if (id == -1||id==0) {
+        rc = sqlite3_prepare_v2(db, "SELECT MAX(id) FROM ip_addresses;", -1, &stmt, 0);
+        if (rc != SQLITE_OK) {
+            fprintf(stderr, "Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+        }
+        rc = sqlite3_step(stmt);
+        int last_id = rc == SQLITE_ROW ? sqlite3_column_int(stmt, 0) : 0;
+        sqlite3_finalize(stmt);
+        id = last_id + 1;
+    }
+
+    printf("New ID: %d\n", id);
+
+    // Ajout de l'adresse IP dans la table
+    char sql[256];
+    sprintf(sql, "INSERT INTO ip_addresses (id, address, mask, type) VALUES (%d, '%d.%d.%d.%d', %d, '%s');", id, ip[0], ip[1], ip[2], ip[3], ip[4], type);
+    rc = sqlite3_exec(db, sql, NULL, NULL, NULL);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Failed to insert IP address into database: %s\n", sqlite3_errmsg(db));
+    } else {
+        printf("IP address added to the database :)\n");
+    }
 }
-////////////////////////////////////---------FONCTION QUI ENVOIE LES IPS FAITES PAR L'USER DANS LA DB ---------------/////
-	void EnvoiIp(int ip[5],char type[10])
-	{
-	printf("Adding address to the db");
-	sprintf(sql, "INSERT INTO ip_addresses (address, mask, type) VALUES ('%d.%d.%d.%d', %d,'%s');", ip[0], ip[1], ip[2], ip[3], ip[4],type);
-	int rc = sqlite3_exec(db, sql, NULL, NULL, NULL);
-	if (rc != SQLITE_OK) 
-	{
-    printf("Failed to insert IP address into database: %s\n", sqlite3_errmsg(db));
-	}
-	else
-	{
-		printf("ip added to the db :)");
-	}
-	//sqlite3_finalize(db);
-	}
 
 //////////////////////////////////-----------------------------------------------------------------------------////////////
 // Cette fonction ne renvoie rien, elle modifie directement le tableau ip et la variable masque.
@@ -126,12 +150,10 @@ void genereIp(int a, int b, int c, int d, int masque){
 		{
 			masque=8;
 		}
-		
 		else if(a>127 || a<=191)
 		{
 			masque=16;
 		}
-		
 		else if(a>191||a<=223)
 		{
 			masque=24;
@@ -206,7 +228,7 @@ void filtrage(){
 }
 //////////////////////////////////-----------------------------------------------------------------------------////////////
 
-int IdDialogBox(char *user_input)
+int IdDialogBox()
 {
  // Create a new dialog box
 		GtkWidget *dialog = gtk_dialog_new ();
@@ -234,10 +256,10 @@ int IdDialogBox(char *user_input)
 		if (response == GTK_RESPONSE_ACCEPT)
 {
     // Get the user input from the text entry widget
-    const char *user_input_str = gtk_entry_get_text (GTK_ENTRY (entry));
+    const char *user_input = gtk_entry_get_text (GTK_ENTRY (entry));
     
     // Use the user input (e.g. print it with printf)
-    printf ("You entered: %s\n", user_input_str);
+    printf ("You entered: %s\n", user_input);
     
     // ...
 }
@@ -245,26 +267,7 @@ int IdDialogBox(char *user_input)
 // Free the dialog box
 gtk_widget_destroy (dialog);
 }
-
-int RequeteId(char *user_input)
-{
-	char Sql_Query[100];
-	printf("Obtention de l'adresse ayant l'ID %s", user_input);
-	sprintf(Sql_Query, "%s%s", "SELECT ip_address, mask FROM ip_addresses WHERE id = %s;", (const char*) user_input);
-	int rc = sqlite3_exec(db, Sql_Query, NULL, NULL, NULL);
-	if (rc != SQLITE_OK) 
-	{
-    printf("Failed to insert IP address into database: %s\n", sqlite3_errmsg(db));
-	}
-	else
-	{
-		printf("ip added to the db :)");
-	}
-	//sqlite3_finalize(db);
-}
-	
-
-void afficherAdresse(GtkWidget *widget, gpointer data,char *user_input) {
+void afficherAdresse(GtkWidget *widget, gpointer data) {
 	int a,b,c,d,masque;
     int choix2 = 0;
     int ipBin[4][8] = {{0}}; // Initialise les valeurs à 0
@@ -275,18 +278,14 @@ void afficherAdresse(GtkWidget *widget, gpointer data,char *user_input) {
                                          "Sous sa forme binaire", 1, "Sous sa forme décimale", 2,
                                          "Sous sa forme hexadécimale", 3,NULL);
     gtk_widget_show_all(dialog);
-
+    
     switch(gtk_dialog_run(GTK_DIALOG(dialog))) {
         case 1:
         //POPUP POUR CHOISIR L'ID A CHERCHER 
         
-       IdDialogBox(user_input);
-       
-       //VERIF A METTRE ICI SI USER INPUT NEST PAS NUL, ALORS CONTINUE, SINON REPROMPT LA FENETRE POUR CHOISIR L'ID A FILTRER
-
-        //SI L'ID NEST PAS NUL, ENVOIE DE LA REQUETE SQL
-        RequeteId(user_input);
-        
+       IdDialogBox();
+          
+        //ENVOIE DE LA REQUETE SQL
             binaire(ipBin);
             message = "L'adresse IP en binaire est : ";
             for (int i = 0; i < 4; i++) {
@@ -300,7 +299,7 @@ void afficherAdresse(GtkWidget *widget, gpointer data,char *user_input) {
         case 2:
                 //POPUP POUR CHOISIR L'ID A CHERCHER 
         
-				IdDialogBox(user_input);
+				IdDialogBox();
           
             message = g_strdup_printf("L'adresse IP est la suivante : %d.%d.%d.%d de masque %d", ip[0], ip[1], ip[2], ip[3], ip[4]);
             break;
@@ -308,7 +307,7 @@ void afficherAdresse(GtkWidget *widget, gpointer data,char *user_input) {
         case 3:
                 //POPUP POUR CHOISIR L'ID A CHERCHER 
         
-				IdDialogBox(user_input);
+				IdDialogBox();
           
 		hexadecimal(ipHexa);
             message = g_strdup_printf("L'adresse IP en hexadécimal est : %s", ipHexa);
@@ -331,8 +330,8 @@ void on_button1_clicked(GtkWidget *widget, gpointer data) {
 }
 
 
-void on_button2_clicked(GtkWidget *widget, gpointer data, char *user_input){
-	afficherAdresse(widget,NULL,user_input);
+void on_button2_clicked(GtkWidget *widget, gpointer data){
+	afficherAdresse(widget,NULL);
 }
 
 void on_button3_clicked(GtkWidget *widget, gpointer data){
