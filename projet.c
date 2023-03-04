@@ -5,7 +5,7 @@
 #include <gtk/gtk.h>
 #include <gtk/gtkeventbox.h>
 #include <glib.h>
-
+#include <gdk-pixbuf/gdk-pixbuf.h>
 // Il est généralement recommandé d'utiliser des constantes pour les valeurs limites de l'adresse IP et du masque.
 // Cela permet de modifier facilement ces limites en un seul endroit si besoin.
 #define MIN_IP_VALUE 0
@@ -37,10 +37,10 @@ if (rc != SQLITE_OK) {
 }
 }
 ////////////////////////////////////---------FONCTION QUI ENVOIE LES IPS FAITES PAR L'USER DANS LA DB ---------------/////
-	void EnvoiIp(int ip[5])
+	void EnvoiIp(int ip[5],char type[10])
 	{
 	printf("Adding address to the db");
-	sprintf(sql, "INSERT INTO ip_addresses (address, mask) VALUES ('%d.%d.%d.%d', %d);", ip[0], ip[1], ip[2], ip[3], ip[4]);
+	sprintf(sql, "INSERT INTO ip_addresses (address, mask, type) VALUES ('%d.%d.%d.%d', %d,'%s');", ip[0], ip[1], ip[2], ip[3], ip[4],type);
 	int rc = sqlite3_exec(db, sql, NULL, NULL, NULL);
 	if (rc != SQLITE_OK) 
 	{
@@ -57,6 +57,7 @@ if (rc != SQLITE_OK) {
 // Cette fonction ne renvoie rien, elle modifie directement le tableau ip et la variable masque.
 void genereIp(int a, int b, int c, int d, int masque){
 	int rep;
+	char type[10];
     printf("Une adresse IP est composée de 4 nombres chacun entre 0 et 255.\n");
     printf("Le premier nombre de votre IP sera: ");
     do {
@@ -67,7 +68,7 @@ void genereIp(int a, int b, int c, int d, int masque){
         }
     } while (a < MIN_IP_VALUE || a > MAX_IP_VALUE);
     ip[0] = a;
-    printf("Le deuxiéme nombre de votre IP sera: ");
+    printf("Le deuxième nombre de votre IP sera: ");
     do {
         scanf("%d", &b);
         fflush(stdout);
@@ -76,7 +77,7 @@ void genereIp(int a, int b, int c, int d, int masque){
         }
     } while (b < MIN_IP_VALUE || b > MAX_IP_VALUE);
     ip[1] = b;
-    printf("Le troisiéme nombre de votre IP sera: ");
+    printf("Le troisième nombre de votre IP sera: ");
     do {
         scanf("%d", &c);
         fflush(stdout);
@@ -142,9 +143,17 @@ void genereIp(int a, int b, int c, int d, int masque){
 		printf("Impossible d'avoir un masque pour ces adresses ip\n");
 		masque=0;
 	}
-	
+	if(a==127&&b==0&&c==0&&d==1){
+		sprintf(type,"spéciale",NULL);
+	}
+	else if((a==10)||(a==172&&(b>=16||b<=31))||(a==192&&b==168)){
+		sprintf(type,"privée",NULL);
+	}
+	else{
+		sprintf(type,"publique",NULL);
+	}
 	ip[4]=masque;
-	EnvoiIp(ip);
+	EnvoiIp(ip,type);
 }
 
 
@@ -165,6 +174,35 @@ void hexadecimal(char ipHexa[9]) {
         sprintf(hexa, "%02x", ip[i]);
         strcat(ipHexa, hexa);
     }
+}
+
+void filtrage(){
+///////////----------------VAR POUR STOCKER LE MASK CHOISI INIT A 0 -----------------////////////////////
+	int masque = 0;
+	char sqlQuery[1000];
+
+	do{
+		printf("Choisissez un masque \n");
+		scanf("%d", &masque);
+		sprintf(sqlQuery, "SELECT address FROM ip_addresses WHERE mask = %d",masque);
+		if (masque < 8 || masque > 30){
+			printf("Masque incorrect\n");
+		}
+
+	}while (masque < 8 || masque > 30);
+	sqlite3_stmt *stmt;
+	int rc = sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, NULL);
+	if (rc != SQLITE_OK){
+		printf("Impossible d'executer la requete %s\n", sqlite3_errmsg(db));
+		sqlite3_free(NULL);
+	}
+	else{
+		printf("Adresse IP pour le masque: %d\n",masque);
+//-------------PRINTF DE LOUTPUT DE LA DB DANSLE TERMINAL EN ATTENDANT DE SETUP GTK------------//////
+		while (sqlite3_step(stmt) == SQLITE_ROW){
+			printf("%s\n", sqlite3_column_text(stmt, 0));
+           	}
+	}
 }
 //////////////////////////////////-----------------------------------------------------------------------------////////////
 void afficherAdresse(GtkWidget *widget, gpointer data) {
@@ -211,15 +249,21 @@ void afficherAdresse(GtkWidget *widget, gpointer data) {
     gtk_widget_destroy(dialog);
 }
 
-void on_button2_clicked(GtkWidget *widget, gpointer data) {
-    afficherAdresse(widget, NULL);
-}
-
 void on_button1_clicked(GtkWidget *widget, gpointer data) {
     int a, b, c, d, masque;
     genereIp(a, b, c, d, masque);
 }
 
+<<<<<<< HEAD
+void on_button2_clicked(GtkWidget *widget, gpointer data){
+	afficherAdresse(widget,NULL);
+}
+
+void on_button3_clicked(GtkWidget *widget, gpointer data){
+	GtkWidget *dialog, *label, *content_area;
+	filtrage();
+}
+=======
 ////////-----------------------------------PREMIERE BRIQUE DE FILTRAGE PAR MASQUE---------------------/////
 void on_button3_clicked(GtkWidget *widget, gpointer data)
 	{
@@ -270,6 +314,7 @@ void on_button3_clicked(GtkWidget *widget, gpointer data)
 				}
 		}
 	}	
+>>>>>>> 5ebdf157a59181836e205bc6e1dd52bef117e8d7
 
 void on_button4_clicked(GtkWidget *widget, gpointer data) {
 	GtkWidget *dialog;
@@ -277,6 +322,7 @@ void on_button4_clicked(GtkWidget *widget, gpointer data) {
 	gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
 }
+
 
 void menu() {
 	GtkWidget *window;
@@ -306,7 +352,7 @@ void menu() {
 
 	button3 = gtk_button_new_with_label("Filtrer une adresse IP via le masque");
 	g_signal_connect(button3, "clicked", G_CALLBACK(on_button3_clicked), NULL);
-
+	
 	button4 = gtk_button_new_with_label("Quitter");
 	g_signal_connect(button4, "clicked", G_CALLBACK(on_button4_clicked), NULL);
 
@@ -316,8 +362,7 @@ void menu() {
 
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(label), "<span font_desc=\"24.0\">Menu principal</span>");
-	image = gtk_image_new_from_file("network.jpg");
-
+	image = gtk_image_new_from_file("network.jpeg");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), image, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
@@ -333,6 +378,5 @@ void menu() {
 int main(int argc, char *argv[]) {
 	InitDb();
 	menu();
-	
 	return EXIT_SUCCESS;
 }
