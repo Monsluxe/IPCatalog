@@ -5,8 +5,8 @@
 #include <gtk/gtk.h>
 #include <gtk/gtkeventbox.h>
 #include <glib.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
-// Il est gÃ©nÃ©ralement recommandÃ© d'utiliser des constantes pour les valeurs limites de l'adresse IP et du masque.
+
+// Il est généralement recommandé d'utiliser des constantes pour les valeurs limites de l'adresse IP et du masque.
 // Cela permet de modifier facilement ces limites en un seul endroit si besoin.
 #define MIN_IP_VALUE 0
 #define MAX_IP_VALUE 255
@@ -22,21 +22,21 @@ char sql[100];
 //////////////////////////////////------------------INITIALISATION DE LA DB--------------------////////////
 sqlite3 *db;
 
-int InitDb(){
-	printf("Opening db \n");
+int InitDb()
+{
+printf("Opening db \n");
 
-	int rc = sqlite3_open("IPCatalog.db", &db);	
-	if (rc != SQLITE_OK) {
-		printf("Failed to open database: %s\n", sqlite3_errmsg(db));
-  		sqlite3_close(db);
-  		exit(1);
+int rc = sqlite3_open("IPCatalog.db", &db);
+if (rc != SQLITE_OK) {
+  printf("Failed to open database: %s\n", sqlite3_errmsg(db));
+  sqlite3_close(db);
+  exit(1);
   
-	}
-	 else {
-  		printf("Successfully opened database.\n");
-	}
+} else {
+  printf("Successfully opened database.\n");
 }
-
+}
+////////////////////////////////////---------FONCTION QUI ENVOIE LES IPS FAITES PAR L'USER DANS LA DB ---------------/////
 void EnvoiIp(int ip[5], char type[10]) {
     int id = -1;
 
@@ -77,12 +77,13 @@ void EnvoiIp(int ip[5], char type[10]) {
     }
 }
 
+
 //////////////////////////////////-----------------------------------------------------------------------------////////////
 // Cette fonction ne renvoie rien, elle modifie directement le tableau ip et la variable masque.
 void genereIp(int a, int b, int c, int d, int masque){
 	int rep;
 	char type[10];
-    printf("Une adresse IP est composÃ©e de 4 nombres chacun entre 0 et 255.\n");
+    printf("Une adresse IP est composée de 4 nombres chacun entre 0 et 255.\n");
     printf("Le premier nombre de votre IP sera: ");
     do {
         scanf("%d", &a);
@@ -92,7 +93,7 @@ void genereIp(int a, int b, int c, int d, int masque){
         }
     } while (a < MIN_IP_VALUE || a > MAX_IP_VALUE);
     ip[0] = a;
-    printf("Le deuxiÃ¨me nombre de votre IP sera: ");
+    printf("Le deuxième nombre de votre IP sera: ");
     do {
         scanf("%d", &b);
         fflush(stdout);
@@ -101,7 +102,7 @@ void genereIp(int a, int b, int c, int d, int masque){
         }
     } while (b < MIN_IP_VALUE || b > MAX_IP_VALUE);
     ip[1] = b;
-    printf("Le troisiÃ¨me nombre de votre IP sera: ");
+    printf("Le troisième nombre de votre IP sera: ");
     do {
         scanf("%d", &c);
         fflush(stdout);
@@ -120,7 +121,7 @@ void genereIp(int a, int b, int c, int d, int masque){
     } while (d < MIN_IP_VALUE || d > MAX_IP_VALUE);
     ip[3] = d;
     if (a <= 223) {
-        printf("Voulez-vous dÃ©finir vous-mÃªme un masque? (1 pour oui le reste pour non) ");
+        printf("Voulez-vous définir vous-même un masque? (1 pour oui le reste pour non) ");
         scanf("%d", &rep);
         fflush(stdout);
         if (rep == 1) {
@@ -138,7 +139,7 @@ void genereIp(int a, int b, int c, int d, int masque){
                 } while (masque < 16 || masque > 23);
             } else {
                 do {
-              		printf("Veuillez entrer votre masque de sous-rÃ©seau (entre 16 et 23) : ");
+              		printf("Veuillez entrer votre masque de sous-réseau (entre 16 et 23) : ");
 		            scanf("%d", &masque);
         	}
         	 while (masque < 24 || masque > 30);
@@ -150,10 +151,12 @@ void genereIp(int a, int b, int c, int d, int masque){
 		{
 			masque=8;
 		}
+		
 		else if(a>127 || a<=191)
 		{
 			masque=16;
 		}
+		
 		else if(a>191||a<=223)
 		{
 			masque=24;
@@ -166,10 +169,10 @@ void genereIp(int a, int b, int c, int d, int masque){
 		masque=0;
 	}
 	if(a==127&&b==0&&c==0&&d==1){
-		sprintf(type,"spÃ©ciale",NULL);
+		sprintf(type,"spéciale",NULL);
 	}
 	else if((a==10)||(a==172&&(b>=16||b<=31))||(a==192&&b==168)){
-		sprintf(type,"privÃ©e",NULL);
+		sprintf(type,"privée",NULL);
 	}
 	else{
 		sprintf(type,"publique",NULL);
@@ -228,7 +231,7 @@ void filtrage(){
 }
 //////////////////////////////////-----------------------------------------------------------------------------////////////
 
-int IdDialogBox()
+int IdDialogBox(char *user_input)
 {
  // Create a new dialog box
 		GtkWidget *dialog = gtk_dialog_new ();
@@ -256,10 +259,10 @@ int IdDialogBox()
 		if (response == GTK_RESPONSE_ACCEPT)
 {
     // Get the user input from the text entry widget
-    const char *user_input = gtk_entry_get_text (GTK_ENTRY (entry));
+    const char *user_input_str = gtk_entry_get_text (GTK_ENTRY (entry));
     
     // Use the user input (e.g. print it with printf)
-    printf ("You entered: %s\n", user_input);
+    printf ("You entered: %s\n", user_input_str);
     
     // ...
 }
@@ -267,25 +270,48 @@ int IdDialogBox()
 // Free the dialog box
 gtk_widget_destroy (dialog);
 }
-void afficherAdresse(GtkWidget *widget, gpointer data) {
+
+int RequeteId(char *user_input)
+{
+	char Sql_Query[100];
+	printf("Obtention de l'adresse ayant l'ID %s", user_input);
+	sprintf(Sql_Query, "%s%s", "SELECT ip_address, mask FROM ip_addresses WHERE id = %s;", (const char*) user_input);
+	int rc = sqlite3_exec(db, Sql_Query, NULL, NULL, NULL);
+	if (rc != SQLITE_OK) 
+	{
+    printf("Failed to insert IP address into database: %s\n", sqlite3_errmsg(db));
+	}
+	else
+	{
+		printf("ip added to the db :)");
+	}
+	//sqlite3_finalize(db);
+}
+	
+
+void afficherAdresse(GtkWidget *widget, gpointer data,char *user_input) {
 	int a,b,c,d,masque;
     int choix2 = 0;
-    int ipBin[4][8] = {{0}}; // Initialise les valeurs Ã  0
-    char ipHexa[9] = {0}; // Initialise les valeurs Ã  0
+    int ipBin[4][8] = {{0}}; // Initialise les valeurs à 0
+    char ipHexa[9] = {0}; // Initialise les valeurs à 0
     GtkWidget *dialog;
 	const gchar *message;
     dialog = gtk_dialog_new_with_buttons("Afficher une adresse IP", NULL, GTK_DIALOG_MODAL,
-                                         "Sous sa forme binaire", 1, "Sous sa forme dÃ©cimale", 2,
-                                         "Sous sa forme hexadÃ©cimale", 3,NULL);
+                                         "Sous sa forme binaire", 1, "Sous sa forme décimale", 2,
+                                         "Sous sa forme hexadécimale", 3,NULL);
     gtk_widget_show_all(dialog);
-    
+
     switch(gtk_dialog_run(GTK_DIALOG(dialog))) {
         case 1:
         //POPUP POUR CHOISIR L'ID A CHERCHER 
         
-       IdDialogBox();
-          
-        //ENVOIE DE LA REQUETE SQL
+       IdDialogBox(user_input);
+       
+       //VERIF A METTRE ICI SI USER INPUT NEST PAS NUL, ALORS CONTINUE, SINON REPROMPT LA FENETRE POUR CHOISIR L'ID A FILTRER
+
+        //SI L'ID NEST PAS NUL, ENVOIE DE LA REQUETE SQL
+        RequeteId(user_input);
+        
             binaire(ipBin);
             message = "L'adresse IP en binaire est : ";
             for (int i = 0; i < 4; i++) {
@@ -299,7 +325,7 @@ void afficherAdresse(GtkWidget *widget, gpointer data) {
         case 2:
                 //POPUP POUR CHOISIR L'ID A CHERCHER 
         
-				IdDialogBox();
+				IdDialogBox(user_input);
           
             message = g_strdup_printf("L'adresse IP est la suivante : %d.%d.%d.%d de masque %d", ip[0], ip[1], ip[2], ip[3], ip[4]);
             break;
@@ -307,10 +333,10 @@ void afficherAdresse(GtkWidget *widget, gpointer data) {
         case 3:
                 //POPUP POUR CHOISIR L'ID A CHERCHER 
         
-				IdDialogBox();
+				IdDialogBox(user_input);
           
 		hexadecimal(ipHexa);
-            message = g_strdup_printf("L'adresse IP en hexadÃ©cimal est : %s", ipHexa);
+            message = g_strdup_printf("L'adresse IP en hexadécimal est : %s", ipHexa);
             break;
 	default:
 		break;
@@ -330,8 +356,8 @@ void on_button1_clicked(GtkWidget *widget, gpointer data) {
 }
 
 
-void on_button2_clicked(GtkWidget *widget, gpointer data){
-	afficherAdresse(widget,NULL);
+void on_button2_clicked(GtkWidget *widget, gpointer data, char *user_input){
+	afficherAdresse(widget,NULL,user_input);
 }
 
 void on_button3_clicked(GtkWidget *widget, gpointer data){
@@ -367,7 +393,7 @@ void menu() {
 
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 
-	button1 = gtk_button_new_with_label("GÃ©nÃ©rer une adresse IP");
+	button1 = gtk_button_new_with_label("Générer une adresse IP");
 	g_signal_connect(button1, "clicked", G_CALLBACK(on_button1_clicked), NULL);
 
 	button2 = gtk_button_new_with_label("Afficher une adresse IP");
@@ -387,7 +413,8 @@ void menu() {
 	gtk_label_set_markup(GTK_LABEL(label), "<span font_desc=\"24.0\">Menu principal</span>");
 	image = gtk_image_new_from_file("network.jpeg");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(vbox), image, TRUE, TRUE, 0);
+	g
+tk_box_pack_start(GTK_BOX(vbox), image, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
 	gtk_container_add(GTK_CONTAINER(window), vbox);
