@@ -12,7 +12,13 @@
 #define MAX_IP_VALUE 255
 #define MIN_MASK_VALUE 8
 #define MAX_MASK_VALUE 30
+//////////////////////////////////------------------GLOBAL VARIABLE----------------------------////////////
+
+
 int ip[5];
+char sql[100];
+
+
 //////////////////////////////////------------------INITIALISATION DE LA DB--------------------////////////
 sqlite3 *db;
 int InitDb()
@@ -29,14 +35,9 @@ if (rc != SQLITE_OK) {
   printf("Successfully opened database.\n");
 }
 }
-
-
-
 ////////////////////////////////////---------FONCTION QUI ENVOIE LES IPS FAITES PAR L'USER DANS LA DB ---------------/////
-//INSERT THE GENERATED IP INTO THE DB
 	void EnvoiIp(int ip[5])
 	{
-	char sql[100];
 	printf("Adding address to the db");
 	sprintf(sql, "INSERT INTO ip_addresses (address, mask) VALUES ('%d.%d.%d.%d', %d);", ip[0], ip[1], ip[2], ip[3], ip[4]);
 	int rc = sqlite3_exec(db, sql, NULL, NULL, NULL);
@@ -49,12 +50,9 @@ if (rc != SQLITE_OK) {
 		printf("ip added to the db :)");
 	}
 	//sqlite3_finalize(db);
-
 	}
 
 //////////////////////////////////-----------------------------------------------------------------------------////////////
-
-
 // Cette fonction ne renvoie rien, elle modifie directement le tableau ip et la variable masque.
 void genereIp(int a, int b, int c, int d, int masque){
 	int rep;
@@ -120,29 +118,31 @@ void genereIp(int a, int b, int c, int d, int masque){
         	 while (masque < 16 || masque > 23);
 		}
 	}
-	else{
-		if(a<=127){
+	else
+	{
+		if(a<=127)
+		{
 			masque=8;
-			printf("ok j'y suis");
 		}
-		else if(a>127 || a<=191){
+		
+		else if(a>127 || a<=191)
+		{
 			masque=16;
 		}
-		else if(a>191||a<=223){
+		
+		else if(a>191||a<=223)
+		{
 			masque=24;
 		}
 	}
-	}
-	else{
+}
+	else
+	{
 		printf("Impossible d'avoir un masque pour ces adresses ip\n");
 		masque=0;
 	}
-	ip[4]=masque;
-	////////////////////////////////----------------------JE TRY JUSTE DES VERIF ICI POUR COMPRENDRE-------------///////////
-	printf("%d",ip[4]);
 	
-	printf("%d",ip[5]);
-
+	ip[4]=masque;
 	EnvoiIp(ip);
 }
 
@@ -216,10 +216,38 @@ void on_button1_clicked(GtkWidget *widget, gpointer data) {
     genereIp(a, b, c, d, masque);
 }
 
+////////-----------------------------------PREMIERE BRIQUE DE FILTRAGE PAR MASQUE---------------------/////
+void on_button3_clicked(GtkWidget *widget, gpointer data)
+	{
+		GtkWidget *dialog, *label, *content_area;
+///////////----------------VAR POUR STOCKER LE MASK CHOISI INIT A 0 -----------------////////////////////
+		int mask = 0;
+    
+		printf("choose a mask\n");
+	
+		scanf("%d", &mask);
+		
+			if (mask < 8 || mask > 32)
+			 
+				{
+	
+					sprintf(sql, "SELECT address FROM ip_addresses WHERE mask = %d",mask);
 
-void on_button3_clicked(GtkWidget *widget, gpointer data){
-	printf("a\n");
-}
+				}
+				
+		int rc = sqlite3_exec(db, sql, NULL, 0, NULL);
+
+		if (rc != SQLITE_OK) 
+		{
+			printf("Failed to execute query: %s\n", sqlite3_errmsg(db));
+			sqlite3_free(NULL);
+		} 
+		else 
+		{
+			printf("Query executed successfully.\n");
+			printf("Mask: %d\n",mask);
+		}
+	}	
 
 void on_button4_clicked(GtkWidget *widget, gpointer data) {
 	GtkWidget *dialog;
