@@ -222,20 +222,31 @@ void on_button3_clicked(GtkWidget *widget, gpointer data)
 		GtkWidget *dialog, *label, *content_area;
 ///////////----------------VAR POUR STOCKER LE MASK CHOISI INIT A 0 -----------------////////////////////
 		int masque = 0;
-    
-		printf("Choisissez un masque \n");
-	
-		scanf("%d", &masque);
-		
-			if (masque <= 8 || masque >= 30)
-			 
-				{
-	
-					sprintf(sql, "SELECT address FROM ip_addresses WHERE mask = %d",masque);
+		char sqlQuery[1000];
 
-				}
+		 //(masque <= 8 || masque >= 30)
+			do 
+			
+			{	
+				printf("Choisissez un masque \n");
+	
+				scanf("%d", &masque);
 				
-		int rc = sqlite3_exec(db, sql, NULL, 0, NULL);
+				sprintf(sqlQuery, "SELECT address FROM ip_addresses WHERE mask = %d",masque);
+					
+					if (masque < 8 || masque > 30)
+					{
+					
+						printf("Masque incorrect\n");
+				
+					}
+
+			}
+				
+			while (masque < 8 || masque > 30);
+				
+		sqlite3_stmt *stmt;		
+		int rc = sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, NULL);
 
 		if (rc != SQLITE_OK) 
 		{
@@ -244,8 +255,15 @@ void on_button3_clicked(GtkWidget *widget, gpointer data)
 		} 
 		else 
 		{
-			printf("SUCCES.\n");
-			printf("Masque: %d\n",masque);
+			
+			printf("Adresse IP pour le masque: %d\n",masque);
+//-------------PRINTF DE LOUTPUT DE LA DB DANSLE TERMINAL EN ATTENDANT DE SETUP GTK------------//////
+				while (sqlite3_step(stmt) == SQLITE_ROW) 
+				{
+			
+					printf("%s\n", sqlite3_column_text(stmt, 0));
+            
+				}
 		}
 	}	
 
