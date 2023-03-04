@@ -1,5 +1,5 @@
 # IPCatalog
-Adrien and Simon 's code for our IP catalog project with ESGI <br>
+Adrien, Marc and Simon 's code for our IP catalog project with ESGI <br>
 
 
 <b> REQUIREMENTS </b> : <br>
