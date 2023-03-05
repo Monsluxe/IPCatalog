@@ -270,7 +270,7 @@ void filtrage(){
 }
 //////////////////////////////////--------------------------POPUP POUR ASK L'ID A CHERCHER DANS LA DB -----------------------------////////////
 
-int IdDialogBox(char *user_input_str){
+int IdDialogBox(const char *user_input_str){
  // Create a new dialog box
 	GtkWidget *dialog = gtk_dialog_new ();
 	gtk_window_set_title (GTK_WINDOW (dialog), "Entrer un ID");
@@ -300,36 +300,30 @@ int IdDialogBox(char *user_input_str){
 
 //////////////////---------------------------------------------------------/////////////////////////////////
 
-int RequeteId(char *user_input_str)
-{
-	int user_input;
+void RequeteId(int user_input, const char *user_input_str){
 	user_input = IdDialogBox(user_input_str);
 	char Sql_Query[100];
-	printf("Obtention de l'adresse ayant l'ID %d", user_input);
+	printf("Obtention de l'adresse ayant l'ID %d\n", user_input);
 	sprintf(Sql_Query, "SELECT address, mask, type FROM ip_addresses WHERE id = %d;",user_input);
 	sqlite3_stmt* stmt = NULL;
 	int rc = sqlite3_prepare_v2(db, Sql_Query, -1, &stmt, NULL);
-	if (rc != SQLITE_OK) 
-	{
+	if (rc != SQLITE_OK) {
         	printf("Impossible d'executer la requete %s\n", sqlite3_errmsg(db));
         	sqlite3_free(NULL);
-    }
+    	}
     	else{
         	printf("Voici l'IP qui a l'ID %d:\n", user_input);
-        	while (sqlite3_step(stmt) == SQLITE_ROW)
-        	{
-            		printf("IP: %s, Masque: %d, Type :%s \n", sqlite3_column_text(stmt, 0), sqlite3_column_int(stmt, 1),sqlite3_column_text(stmt, 2));
+        	while (sqlite3_step(stmt) == SQLITE_ROW){
+            		printf("-IP: %s\n-Masque: %d\n-Type: %s\n", sqlite3_column_text(stmt, 0), sqlite3_column_int(stmt, 1),sqlite3_column_text(stmt, 2));
         	}
     	}
     	sqlite3_finalize(stmt);
 
 	//sqlite3_finalize(db);
-	return user_input;
 }
 //////////////////-----------------BOUTON "AFFICHER UNE ADRESSE"--------/////////////////////////////////
 
-void afficherAdresse(GtkWidget *widget, gpointer data,char *user_input_str) 
-{
+void afficherAdresse(GtkWidget *widget, gpointer data,const char *user_input_str){
 	int user_input;
 	int a,b,c,d,masque;
     	int choix2 = 0;
@@ -347,7 +341,7 @@ void afficherAdresse(GtkWidget *widget, gpointer data,char *user_input_str)
  
         //SI L'ID NEST PAS NUL, ET SI LA DB CONTIENT L'ID DE L'INPUT, ALORS ENVOIE DE LA REQUETE SQL :
         //POPUP POUR CHOISIR L'ID A CHERCHER - RequeteId lance dabord la fonction IdDialogBox avant d'operer
-			user_input = RequeteId(user_input_str);
+			RequeteId(user_input,user_input_str);
 			binaire(ipBin);
             		message = "L'adresse IP en binaire est : ";
         		for (int i = 0; i < 4; i++){
@@ -360,13 +354,13 @@ void afficherAdresse(GtkWidget *widget, gpointer data,char *user_input_str)
 
 		case 2:
                 //POPUP POUR CHOISIR L'ID A CHERCHER VOIR IdDialogBox()
-        		user_input = RequeteId(user_input_str);
+        		RequeteId(user_input,user_input_str);
           		message = g_strdup_printf("L'adresse IP est la suivante : %d.%d.%d.%d de masque %d", ip[0], ip[1], ip[2], ip[3], ip[4]);
         		break;
 
         	case 3:
                 //POPUP POUR CHOISIR L'ID A CHERCHER 
-        		user_input = RequeteId(user_input_str);
+        		RequeteId(user_input,user_input_str);
         		hexadecimal(ipHexa);
             		message = g_strdup_printf("L'adresse IP en hexadecimal est : %s", ipHexa[9]);
             		break;
