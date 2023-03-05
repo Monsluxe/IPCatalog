@@ -239,26 +239,33 @@ void filtrage(){
 	do{
 		printf("Choisissez un masque \n");
 		verifscanf=scanf("%d", &masque);
-		sprintf(sqlQuery, "SELECT address FROM ip_addresses WHERE mask = %d",masque);
+		sprintf(sqlQuery, "SELECT address, type FROM ip_addresses WHERE mask = %d",masque);
 		if (masque<8||masque>30||verifscanf!=1){
 			printf("Masque incorrect\n");
 			while(getchar()!='\n');
 		}
 
 	}
+	
 	while (masque < 8 || masque > 30);
+	
 	sqlite3_stmt *stmt;
+	
 	int rc = sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, NULL);
-	if (rc != SQLITE_OK){
+	
+	if (rc != SQLITE_OK)
+	{
 		printf("Impossible d'executer la requete %s\n", sqlite3_errmsg(db));
 		sqlite3_free(NULL);
 	}
-	else{
+	else
+	{
 		printf("Adresse IP pour le masque: %d\n",masque);
 //-------------PRINTF DE LOUTPUT DE LA DB DANSLE TERMINAL EN ATTENDANT DE SETUP GTK------------//////
-		while (sqlite3_step(stmt) == SQLITE_ROW){
-			printf("%s\n", sqlite3_column_text(stmt, 0));
-        	}
+		while (sqlite3_step(stmt) == SQLITE_ROW)
+		{
+			printf("Adresse: %s, type : %s\n", sqlite3_column_text(stmt, 0),sqlite3_column_text(stmt, 2));
+        }
 	}
 }
 //////////////////////////////////--------------------------POPUP POUR ASK L'ID A CHERCHER DANS LA DB -----------------------------////////////
@@ -293,22 +300,25 @@ int IdDialogBox(char *user_input_str){
 
 //////////////////---------------------------------------------------------/////////////////////////////////
 
-int RequeteId(char *user_input_str){
+int RequeteId(char *user_input_str)
+{
 	int user_input;
 	user_input = IdDialogBox(user_input_str);
 	char Sql_Query[100];
 	printf("Obtention de l'adresse ayant l'ID %d", user_input);
-	sprintf(Sql_Query, "SELECT address, mask FROM ip_addresses WHERE id = %d;",user_input);
+	sprintf(Sql_Query, "SELECT address, mask, type FROM ip_addresses WHERE id = %d;",user_input);
 	sqlite3_stmt* stmt = NULL;
 	int rc = sqlite3_prepare_v2(db, Sql_Query, -1, &stmt, NULL);
-	if (rc != SQLITE_OK) {
+	if (rc != SQLITE_OK) 
+	{
         	printf("Impossible d'executer la requete %s\n", sqlite3_errmsg(db));
         	sqlite3_free(NULL);
-    	}
+    }
     	else{
         	printf("Voici l'IP qui a l'ID %d:\n", user_input);
-        	while (sqlite3_step(stmt) == SQLITE_ROW){
-            		printf("IP: %s, Masque: %d\n", sqlite3_column_text(stmt, 0), sqlite3_column_int(stmt, 1));
+        	while (sqlite3_step(stmt) == SQLITE_ROW)
+        	{
+            		printf("IP: %s, Masque: %d, Type :%s \n", sqlite3_column_text(stmt, 0), sqlite3_column_int(stmt, 1),sqlite3_column_text(stmt, 2));
         	}
     	}
     	sqlite3_finalize(stmt);
