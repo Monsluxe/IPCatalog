@@ -6,7 +6,7 @@
 #include <gtk/gtkeventbox.h>
 #include <glib.h>
 
-// Il est généralement recommandé d'utiliser des constantes pour les valeurs limites de l'adresse IP et du masque.
+// Il est gÃ©nÃ©ralement recommandÃ© d'utiliser des constantes pour les valeurs limites de l'adresse IP et du masque.
 // Cela permet de modifier facilement ces limites en un seul endroit si besoin.
 #define MIN_IP_VALUE 0
 #define MAX_IP_VALUE 255
@@ -336,7 +336,7 @@ void afficherAdresse(GtkWidget *widget, gpointer data,char *user_input) {
 				IdDialogBox(user_input);
           
 		hexadecimal(ipHexa);
-            message = g_strdup_printf("L'adresse IP en hexadécimal est : %s", ipHexa);
+            message = g_strdup_printf("L'adresse IP en hexadÃ©cimal est : %s", ipHexa);
             break;
 	default:
 		break;
@@ -393,7 +393,7 @@ void menu() {
 
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 
-	button1 = gtk_button_new_with_label("Générer une adresse IP");
+	button1 = gtk_button_new_with_label("GÃ©nÃ©rer une adresse IP");
 	g_signal_connect(button1, "clicked", G_CALLBACK(on_button1_clicked), NULL);
 
 	button2 = gtk_button_new_with_label("Afficher une adresse IP");
@@ -413,8 +413,7 @@ void menu() {
 	gtk_label_set_markup(GTK_LABEL(label), "<span font_desc=\"24.0\">Menu principal</span>");
 	image = gtk_image_new_from_file("network.jpeg");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	g
-tk_box_pack_start(GTK_BOX(vbox), image, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), image, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
 	gtk_container_add(GTK_CONTAINER(window), vbox);
