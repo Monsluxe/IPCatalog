@@ -83,7 +83,7 @@ void EnvoiIp(int ip[5], char type[10]) {
 void genereIp(int a, int b, int c, int d, int masque){
 	int rep;
 	char type[10];
-    printf("Une adresse IP est composée de 4 nombres chacun entre 0 et 255.\n");
+    printf("Une adresse IP est composÃ©e de 4 nombres chacun entre 0 et 255.\n");
     printf("Le premier nombre de votre IP sera: ");
     do {
         scanf("%d", &a);
@@ -93,7 +93,7 @@ void genereIp(int a, int b, int c, int d, int masque){
         }
     } while (a < MIN_IP_VALUE || a > MAX_IP_VALUE);
     ip[0] = a;
-    printf("Le deuxième nombre de votre IP sera: ");
+    printf("Le deuxiÃ¨me nombre de votre IP sera: ");
     do {
         scanf("%d", &b);
         fflush(stdout);
@@ -102,7 +102,7 @@ void genereIp(int a, int b, int c, int d, int masque){
         }
     } while (b < MIN_IP_VALUE || b > MAX_IP_VALUE);
     ip[1] = b;
-    printf("Le troisième nombre de votre IP sera: ");
+    printf("Le troisiÃ¨me nombre de votre IP sera: ");
     do {
         scanf("%d", &c);
         fflush(stdout);
@@ -121,7 +121,7 @@ void genereIp(int a, int b, int c, int d, int masque){
     } while (d < MIN_IP_VALUE || d > MAX_IP_VALUE);
     ip[3] = d;
     if (a <= 223) {
-        printf("Voulez-vous définir vous-même un masque? (1 pour oui le reste pour non) ");
+        printf("Voulez-vous dÃ©finir vous-mÃªme un masque? (1 pour oui le reste pour non) ");
         scanf("%d", &rep);
         fflush(stdout);
         if (rep == 1) {
@@ -139,7 +139,7 @@ void genereIp(int a, int b, int c, int d, int masque){
                 } while (masque < 16 || masque > 23);
             } else {
                 do {
-              		printf("Veuillez entrer votre masque de sous-réseau (entre 16 et 23) : ");
+              		printf("Veuillez entrer votre masque de sous-rÃ©seau (entre 16 et 23) : ");
 		            scanf("%d", &masque);
         	}
         	 while (masque < 24 || masque > 30);
@@ -169,10 +169,10 @@ void genereIp(int a, int b, int c, int d, int masque){
 		masque=0;
 	}
 	if(a==127&&b==0&&c==0&&d==1){
-		sprintf(type,"spéciale",NULL);
+		sprintf(type,"spÃ©ciale",NULL);
 	}
 	else if((a==10)||(a==172&&(b>=16||b<=31))||(a==192&&b==168)){
-		sprintf(type,"privée",NULL);
+		sprintf(type,"privÃ©e",NULL);
 	}
 	else{
 		sprintf(type,"publique",NULL);
@@ -297,8 +297,8 @@ void afficherAdresse(GtkWidget *widget, gpointer data,char *user_input) {
     GtkWidget *dialog;
 	const gchar *message;
     dialog = gtk_dialog_new_with_buttons("Afficher une adresse IP", NULL, GTK_DIALOG_MODAL,
-                                         "Sous sa forme binaire", 1, "Sous sa forme décimale", 2,
-                                         "Sous sa forme hexadécimale", 3,NULL);
+                                         "Sous sa forme binaire", 1, "Sous sa forme dÃ©cimale", 2,
+                                         "Sous sa forme hexadÃ©cimale", 3,NULL);
     gtk_widget_show_all(dialog);
 
     switch(gtk_dialog_run(GTK_DIALOG(dialog))) {
@@ -384,7 +384,7 @@ void menu() {
 	
 
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(window), "Menu");
+	gtk_window_set_title(GTK_WINDOW(window), "Catalogue d'Adresse IP");
 
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
