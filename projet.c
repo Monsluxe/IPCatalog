@@ -14,7 +14,7 @@
 #define MAX_MASK_VALUE 30
 //////////////////////////////////------------------GLOBAL VARIABLE----------------------------////////////
 
-
+char hexa[3];
 int ip[5];
 char sql[100];
 
@@ -305,22 +305,44 @@ char * RequeteId(int user_input, const char *user_input_str) {
 //////////////////////////////////------------------------------------------------------------->
 void binaire(int ipBin[4][8],const char* user_input_str,int user_input) {
 	char* ipconc2;
+	char *token;
 	ipconc2=RequeteId(user_input,user_input_str);
-        printf("a:%s\n",ipconc2);
+        int aip[4];
+	int i=0;
+	token=strtok(ipconc2,".");
+	while(token != NULL) {
+        // Convertir chaque sous-chaîne en entier et stocker la valeur dans le tableau d'entiers
+		aip[i] = atoi(token);
+        	token = strtok(NULL, ".");
+		i++;
+    	}
 	for (int j = 0; j < 4; j++){
-                int n = ip[j];
-                for (int i = 7; i >= 0; i--){
-                        ipBin[j][7-i] = (n >> i) & 1;
+		 int n = aip[j];
+                for (int k = 7; k >= 0; k--){
+                        ipBin[j][7-k] = (n >> k) & 1;
                 }
         }
 }
 //////////////////////////////////------------------------------------------------------------->
-void hexadecimal(char ipHexa[9]){
-        char hexa[3];
-        for (int i = 0; i < 4; i++){
-                sprintf(hexa, "%02x", ip[i]);
-                strcat(ipHexa, hexa);
+void hexadecimal(char ipHexa[9], const char* user_input_str, int user_input){
+	char* ipconc2;
+	char* token;
+	ipconc2=RequeteId(user_input,user_input_str);
+	int aip[4];
+	int i=0;
+        token=strtok(ipconc2,".");
+        while(token != NULL) {
+        // Convertir chaque sous-chaîne en entier et stocker la valeur dans le tableau d'entie>
+                aip[i] = atoi(token);
+                token = strtok(NULL, ".");
+                i++;
         }
+        for (int j = 0; j < 4; j++){
+                snprintf(hexa, sizeof(hexa), "%02x", aip[j]);
+                strcat(ipHexa, hexa);
+		printf("%s",hexa);
+        }
+	printf("\n%s",hexa);
 }
 
 //////////////////-----------------BOUTON "AFFICHER UNE ADRESSE"--------/////////////////////////////////
@@ -363,7 +385,7 @@ void afficherAdresse(GtkWidget *widget, gpointer data,const char *user_input_str
         	case 3:
                 //POPUP POUR CHOISIR L'ID A CHERCHER 
         		//RequeteId(user_input,user_input_str);
-        		hexadecimal(ipHexa);
+        		hexadecimal(ipHexa,user_input_str,user_input);
             		message = g_strdup_printf("L'adresse IP en hexadecimal est : %s", ipHexa[9]);
             		break;
 		default:
