@@ -6,7 +6,7 @@
 #include <gtk/gtkeventbox.h>
 #include <glib.h>
 
-// Il est g√©n√©ralement recommand√© d'utiliser des constantes pour les valeurs limites de l'adresse IP et du masque.
+// Il est gÈnÈralement recommandÈ d'utiliser des constantes pour les valeurs limites de l'adresse IP et du masque.
 // Cela permet de modifier facilement ces limites en un seul endroit si besoin.
 #define MIN_IP_VALUE 0
 #define MAX_IP_VALUE 255
@@ -48,11 +48,11 @@ void EnvoiIp(int ip[5], char type[10]) {
     }
     rc = sqlite3_step(stmt);
     if (rc == SQLITE_ROW) {
-        // Un ID libre a √©t√© trouv√©
+        
         id = sqlite3_column_int(stmt, 0);
     }
     sqlite3_finalize(stmt);
-    // Si aucun ID libre n'a √©t√© trouv√©, on utilise le MAX(id) + 1
+    // Si aucun ID libre n'a ÈtÈ trouvÈ, on utilise le MAX(id) + 1
     if (id == -1||id==0) {
         rc = sqlite3_prepare_v2(db, "SELECT MAX(id) FROM ip_addresses;", -1, &stmt, 0);
         if (rc != SQLITE_OK) {
@@ -120,31 +120,48 @@ void genereIp(int a, int b, int c, int d, int masque){
         }
     } while (d < MIN_IP_VALUE || d > MAX_IP_VALUE);
     ip[3] = d;
-    if (a <= 223) {
-        printf("Voulez-vous d√©finir vous-m√™me un masque? (1 pour oui le reste pour non) ");
+    if (a <= 223) 
+{
+        printf("Voulez-vous dÈfinir vous-mÍme un masque? (1 pour oui le reste pour non) ");
         scanf("%d", &rep);
         fflush(stdout);
-        if (rep == 1) {
-            if (a <= 127) {
-                do {
+        if (rep == 1) 
+        {
+            if (a <= 127) 
+            {
+                do 
+                {
                     printf("Veuillez entrer votre masque(entre 8 et 15): ");
                     scanf("%d", &masque);
                     fflush(stdout);
-                } while (masque < MIN_MASK_VALUE || masque > 15);
-            } else if (a > 127 || a <= 191) {
-                do {
+                } 
+                
+                while (masque < MIN_MASK_VALUE || masque > 15);
+            } 
+            
+            else if (a > 127 || a <= 191) 
+            {
+                do 
+                {
                     printf("Veuillez entrer votre masque(entre 16 et 23): ");
                     scanf("%d", &masque);
                     fflush(stdout);
-                } while (masque < 16 || masque > 23);
-            } else {
-                do {
-              		printf("Veuillez entrer votre masque de sous-r√©seau (entre 16 et 23) : ");
+                }
+                
+                 while (masque < 16 || masque > 23);
+            }
+             
+            else 
+            {
+                do 
+                {
+              		printf("Veuillez entrer votre masque de sous-rÈseau (entre 16 et 23) : ");
 		            scanf("%d", &masque);
-        	}
-        	 while (masque < 24 || masque > 30);
+				}
+				
+				while (masque < 24 || masque > 30);
+			}
 		}
-	}
 	else
 	{
 		if(a<=127)
@@ -163,18 +180,22 @@ void genereIp(int a, int b, int c, int d, int masque){
 		}
 	}
 }
+
 	else
 	{
 		printf("Impossible d'avoir un masque pour ces adresses ip\n");
 		masque=0;
 	}
-	if(a==127&&b==0&&c==0&&d==1){
-		sprintf(type,"sp√©ciale",NULL);
+	if(a==127&&b==0&&c==0&&d==1)
+	{
+		sprintf(type,"spÈciale",NULL);
 	}
-	else if((a==10)||(a==172&&(b>=16||b<=31))||(a==192&&b==168)){
-		sprintf(type,"priv√©e",NULL);
+	else if((a==10)||(a==172&&(b>=16||b<=31))||(a==192&&b==168))
+	{
+		sprintf(type,"privÈe",NULL);
 	}
-	else{
+	else
+	{
 		sprintf(type,"publique",NULL);
 	}
 	ip[4]=masque;
@@ -184,18 +205,23 @@ void genereIp(int a, int b, int c, int d, int masque){
 
 
 //////////////////////////////////-----------------------------------------------------------------------------////////////
-void binaire(int ipBin[4][8]) {
-    for (int j = 0; j < 4; j++) {
+void binaire(int ipBin[4][8]) 
+{
+    for (int j = 0; j < 4; j++) 
+    {
         int n = ip[j];
-        for (int i = 7; i >= 0; i--) {
+        for (int i = 7; i >= 0; i--) 
+        {
             ipBin[j][7-i] = (n >> i) & 1;
         }
     }
 }
 //////////////////////////////////-----------------------------------------------------------------------------////////////
-void hexadecimal(char ipHexa[9]) {
+void hexadecimal(char ipHexa[9]) 
+{
     char hexa[3];
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) 
+    {
         sprintf(hexa, "%02x", ip[i]);
         strcat(ipHexa, hexa);
     }
@@ -206,27 +232,34 @@ void filtrage(){
 	int masque = 0;
 	char sqlQuery[1000];
 
-	do{
+	do
+	{
 		printf("Choisissez un masque \n");
 		scanf("%d", &masque);
 		sprintf(sqlQuery, "SELECT address FROM ip_addresses WHERE mask = %d",masque);
-		if (masque < 8 || masque > 30){
+		if (masque < 8 || masque > 30)
+		{
 			printf("Masque incorrect\n");
 		}
 
-	}while (masque < 8 || masque > 30);
+	}
+	while (masque < 8 || masque > 30);
 	sqlite3_stmt *stmt;
 	int rc = sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, NULL);
-	if (rc != SQLITE_OK){
+	if (rc != SQLITE_OK)
+	{
 		printf("Impossible d'executer la requete %s\n", sqlite3_errmsg(db));
 		sqlite3_free(NULL);
 	}
-	else{
+	
+	else
+	{
 		printf("Adresse IP pour le masque: %d\n",masque);
 //-------------PRINTF DE LOUTPUT DE LA DB DANSLE TERMINAL EN ATTENDANT DE SETUP GTK------------//////
-		while (sqlite3_step(stmt) == SQLITE_ROW){
+		while (sqlite3_step(stmt) == SQLITE_ROW)
+		{
 			printf("%s\n", sqlite3_column_text(stmt, 0));
-           	}
+        }
 	}
 }
 //////////////////////////////////-----------------------------------------------------------------------------////////////
@@ -336,7 +369,7 @@ void afficherAdresse(GtkWidget *widget, gpointer data,char *user_input) {
 				IdDialogBox(user_input);
           
 		hexadecimal(ipHexa);
-            message = g_strdup_printf("L'adresse IP en hexad√©cimal est : %s", ipHexa);
+            message = g_strdup_printf("L'adresse IP en hexadÈcimal est : %s", ipHexa);
             break;
 	default:
 		break;
