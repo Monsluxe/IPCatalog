@@ -49,7 +49,7 @@ void EnvoiIp(int ip[5], char type[10]) {
     	}
     	sqlite3_finalize(stmt);
     // Si aucun ID libre n'a été trouvé, on utilise le MAX(id) + 1
-    	if (id == -1||id==0){
+    	if (id==-1||id==0){
         	rc = sqlite3_prepare_v2(db, "SELECT MAX(id) FROM ip_addresses;", -1, &stmt, 0);
         	if (rc != SQLITE_OK) {
             		fprintf(stderr, "Failed to prepare statement: %s\n", sqlite3_errmsg(db));
@@ -119,8 +119,8 @@ void genereIp(int a, int b, int c, int d, int masque){
         tentatives=0;
     	ip[2] = c;
         do {
-        	printf("Le troisième nombre de votre IP sera: ");
-                verifscanf=scanf("%d", &c);
+        	printf("Le dernier nombre de votre IP sera: ");
+                verifscanf=scanf("%d", &d);
                 fflush(stdout);
                 while(getchar()!='\n');
                 tentatives++;
@@ -130,14 +130,14 @@ void genereIp(int a, int b, int c, int d, int masque){
         }while((d<MIN_IP_VALUE||d>MAX_IP_VALUE||verifscanf!=1)&&tentatives<3);
         tentatives=0;
     	ip[3] = d;
-    	if (a <= 223) {
+    	if (a!=127&&a<=223) {
         	printf("Voulez-vous définir vous-même un masque? (1 pour oui le reste pour non) ");
         	while(scanf("%d", &rep)!=1){
         		printf("Caractère invalides. Veuillez refaire s'il-vous-plait: ");
 			while(getchar()!='\n');
 		}
         if (rep == 1){
-            	if (a <= 127){
+            	if (a < 127){
                 	do{
                     		printf("Veuillez entrer votre masque(entre 8 et 15): ");
                     		verifscanf=scanf("%d", &masque);
@@ -151,7 +151,7 @@ void genereIp(int a, int b, int c, int d, int masque){
                 	}while((masque<MIN_MASK_VALUE||masque>15||verifscanf!=1)&&tentatives<3);
 			tentatives=0;
             	}
-                else if (a > 127 || a <= 191){
+                else if (a>127 || a <= 191){
                 	do{
                     		printf("Veuillez entrer votre masque(entre 16 et 23): ");
                     		verifscanf=scanf("%d", &masque);
@@ -181,7 +181,7 @@ void genereIp(int a, int b, int c, int d, int masque){
 		}
 	}
 	else{
-		if(a<=127){
+		if(a<127){
 			masque=8;
 		}
 		else if(a>127 || a<=191){
@@ -196,7 +196,7 @@ void genereIp(int a, int b, int c, int d, int masque){
 		printf("Impossible d'avoir un masque pour ces adresses ip\n");
 		masque=0;
 	}
-	if(a==127&&b==0&&c==0&&d==1){
+	if(a==127){
 		sprintf(type,"spéciale",NULL);
 	}
 	else if((a==10)||(a==172&&(b>=16||b<=31))||(a==192&&b==168)){
