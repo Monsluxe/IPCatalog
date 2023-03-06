@@ -238,7 +238,7 @@ void genereIp(int a, int b, int c, int d, int masque)
 				
 					}
 					
-				while((masque<24||masque>30||verifscanf!=1)&&tentatives<3);
+				while((masque<24||masque>MAX_MASK_VALUE||verifscanf!=1)&&tentatives<3);
 				tentatives=0;
 				}
 	}
@@ -463,7 +463,6 @@ void afficherAdresse(GtkWidget *widget, gpointer data,const char *user_input_str
        
 			//SI L'ID NEST PAS NUL, ET SI LA DB CONTIENT L'ID DE L'INPUT, ALORS ENVOIE DE LA REQUETE SQL :
 			//POPUP POUR CHOISIR L'ID A CHERCHER - RequeteId lance dabord la fonction IdDialogBox avant d'operer
-			//RequeteId(user_input,user_input_str);
 			binaire(ipBin,user_input_str,user_input);
             message = "L'adresse IP en binaire est : ";
         		for (int i = 0; i < 4; i++)
@@ -500,7 +499,6 @@ void afficherAdresse(GtkWidget *widget, gpointer data,const char *user_input_str
 
         	case 3:
                 //POPUP POUR CHOISIR L'ID A CHERCHER 
-        		//RequeteId(user_input,user_input_str);
         		hexadecimal(ipHexa,user_input_str,user_input);
             	message = g_strdup_printf("L'adresse IP en hexadecimal est : %s", ipHexa);
             	break;
@@ -588,8 +586,6 @@ void menu()
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), image, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-
-	gtk_container_add(GTK_CONTAINER(window), vbox);
 
 	gtk_widget_show_all(window);
 
