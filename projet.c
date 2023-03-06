@@ -19,37 +19,46 @@ char sql[100];
 //////////////////////////////////------------------INITIALISATION DE LA DB--------------------////////////
 sqlite3 *db;
 
-int InitDb(){
+int InitDb()
+{
 	printf("Opening db \n");
 	int rc = sqlite3_open("IPCatalog.db", &db);
-	if (rc != SQLITE_OK) {
+	if (rc != SQLITE_OK)
+	{
   		printf("Failed to open database: %s\n", sqlite3_errmsg(db));
   		sqlite3_close(db);
   		exit(1);
 	} 
-	else {
+	
+	else
+	{
   		printf("Successfully opened database.\n");
 	}
 }
 ////////////////////////////////////---------FONCTION QUI ENVOIE LES IPS FAITES PAR L'USER DANS LA DB ---------------/////
-void EnvoiIp(int ip[5], char type[10]) {
+void EnvoiIp(int ip[5], char type[10]) 
+{
     	int id = -1;
 
     	// Recherche d'un ID libre dans la table
     	sqlite3_stmt *stmt;
     	int rc = sqlite3_prepare_v2(db, "SELECT MIN(t1.id + 1) FROM ip_addresses AS t1 LEFT JOIN ip_addresses AS t2 ON t1.id + 1 = t2.id WHERE t2.id IS NULL AND t1.id < (SELECT MAX(id) FROM ip_addresses);", -1, &stmt, 0);
-    	if (rc != SQLITE_OK){
+    	if (rc != SQLITE_OK)
+    	{
         	fprintf(stderr, "Failed to prepare statement: %s\n", sqlite3_errmsg(db));
     	}
     	rc = sqlite3_step(stmt);
-    	if (rc == SQLITE_ROW){
+    	if (rc == SQLITE_ROW)
+    	{
         	id = sqlite3_column_int(stmt, 0);
     	}
     	sqlite3_finalize(stmt);
     // Si aucun ID libre n'a été trouvé, on utilise le MAX(id) + 1
-    	if (id==-1||id==0){
+    	if (id==-1||id==0)
+    	{
         	rc = sqlite3_prepare_v2(db, "SELECT MAX(id) FROM ip_addresses;", -1, &stmt, 0);
-        	if (rc != SQLITE_OK) {
+        	if (rc != SQLITE_OK)
+        	{
             		fprintf(stderr, "Failed to prepare statement: %s\n", sqlite3_errmsg(db));
         	}
         	rc = sqlite3_step(stmt);
@@ -64,122 +73,174 @@ void EnvoiIp(int ip[5], char type[10]) {
     	char sql[256];
     	sprintf(sql, "INSERT INTO ip_addresses (id, address, mask, type) VALUES (%d, '%d.%d.%d.%d', %d, '%s');", id, ip[0], ip[1], ip[2], ip[3], ip[4], type);
     	rc = sqlite3_exec(db, sql, NULL, NULL, NULL);
-    	if (rc != SQLITE_OK) {
+    	if (rc != SQLITE_OK) 
+    	{
         	fprintf(stderr, "Failed to insert IP address into database: %s\n", sqlite3_errmsg(db));
     	}
- 	else {
-        	printf("IP address added to the database :)\n");
-    	}
+ 	else 
+ 	{
+        printf("IP address added to the database :)\n");
+    }
 }
 
 
 //////////////////////////////////-----------------------------------------------------------------------------////////////
 // Cette fonction ne renvoie rien, elle modifie directement le tableau ip et la variable masque.
-void genereIp(int a, int b, int c, int d, int masque){
+void genereIp(int a, int b, int c, int d, int masque)
+{
 	int rep,verifscanf,tentatives=0;
 	char type[10];
     	printf("Une adresse IP est composée de 4 nombres chacun entre 0 et 255.\n");
-    	do {
+    	do 
+    	{
 		printf("Le premier nombre de votre IP sera: ");
         	verifscanf=scanf("%d", &a);
         	fflush(stdout);
         	while(getchar()!='\n');
             	tentatives++;
-		if(tentatives==3){
-			printf("Trop de tentatives invalides, veuillez réessayer plus tard.\n");
+			if(tentatives==3)
+			{
+				printf("Trop de tentatives invalides, veuillez réessayer plus tard.\n");
         		return;
-		}
-    	}while((a<MIN_IP_VALUE||a>MAX_IP_VALUE||verifscanf!=1)&&tentatives<3);
+			}
+    	}
+    	
+    	while((a<MIN_IP_VALUE||a>MAX_IP_VALUE||verifscanf!=1)&&tentatives<3);
+    	
     	tentatives=0;
-	ip[0] = a;
-        do {
+		ip[0] = a;
+        do 
+        {
 		printf("Le deuxième nombre de votre IP sera: ");
-        	verifscanf=scanf("%d", &b);
-        	fflush(stdout);
-       		while(getchar()!='\n');
+        verifscanf=scanf("%d", &b);
+        fflush(stdout);
+       	while(getchar()!='\n');
 		tentatives++;
-        	if(tentatives==3){
+        	if(tentatives==3)
+        	{
 				printf("Trop de tentatives invalides, veuillez réessayer plus tard.\n");
 				return;
 			}
-    	}while((b<MIN_IP_VALUE||b>MAX_IP_VALUE||verifscanf!=1)&&tentatives<3);
+    	}
+    	
+    	while((b<MIN_IP_VALUE||b>MAX_IP_VALUE||verifscanf!=1)&&tentatives<3);
     	tentatives=0;
-	ip[1] = b;
-        do {
+		ip[1] = b;
+		
+        do 
+        {
                 printf("Le troisième nombre de votre IP sera: ");
                 verifscanf=scanf("%d", &c);
                 fflush(stdout);
                 while(getchar()!='\n');
                 tentatives++;
-                if(tentatives==3){
+                
+                if(tentatives==3)
+                {
                     printf("Trop de tentatives invalides, veuillez réessayer plus tard.\n");
 					return;
                 }
-        }while((c<MIN_IP_VALUE||c>MAX_IP_VALUE||verifscanf!=1)&&tentatives<3);
+        }
+        
+        while((c<MIN_IP_VALUE||c>MAX_IP_VALUE||verifscanf!=1)&&tentatives<3);
         tentatives=0;
     	ip[2] = c;
-        do {
+        do 
+        {
         	printf("Le dernier nombre de votre IP sera: ");
                 verifscanf=scanf("%d", &d);
                 fflush(stdout);
                 while(getchar()!='\n');
                 tentatives++;
-                if(tentatives==3){
+                
+                if(tentatives==3)
+                {
                     printf("Trop de tentatives invalides, veuillez réessayer plus tard.\n");
 					return;
                 }
-        }while((d<MIN_IP_VALUE||d>MAX_IP_VALUE||verifscanf!=1)&&tentatives<3);
+        }
+        
+        while((d<MIN_IP_VALUE||d>MAX_IP_VALUE||verifscanf!=1)&&tentatives<3);
+        
         tentatives=0;
+        
     	ip[3] = d;
-    	if (a!=127&&a<=223) {
+    	
+    	if (a!=127&&a<=223) 
+    	{
         	printf("Voulez-vous définir vous-même un masque? (1 pour oui le reste pour non) ");
         	while(scanf("%d", &rep)!=1){
-        		printf("Caractère invalides. Veuillez refaire s'il-vous-plait: ");
+        	printf("Caractère invalides. Veuillez refaire s'il-vous-plait: ");
 			while(getchar()!='\n');
 		}
-        if (rep == 1){
-            	if (a < 127){
-                	do{
+		
+        if (rep == 1)
+        {
+            	if (a < 127)
+            	{
+                	do
+                	{
                     		printf("Veuillez entrer votre masque(entre 8 et 15): ");
                     		verifscanf=scanf("%d", &masque);
                     		fflush(stdout);
-				while(getchar()!='\n');
-				tentatives++;
-				if(tentatives==3){
-					printf("Trop de tentatives invalides. Veuilez réessayer plus tard.\n");
-					return;
-				}
-                	}while((masque<MIN_MASK_VALUE||masque>15||verifscanf!=1)&&tentatives<3);
-			tentatives=0;
+							while(getchar()!='\n');
+							tentatives++;
+								if(tentatives==3)
+								{
+									printf("Trop de tentatives invalides. Veuilez réessayer plus tard.\n");
+									return;
+								}
+					}
+					
+                	while((masque<MIN_MASK_VALUE||masque>15||verifscanf!=1)&&tentatives<3);
+					tentatives=0;
             	}
-                else if (a>127 || a <= 191){
-                	do{
+            	
+                else if (a>127 || a <= 191)
+                {
+                	do
+                	{
                     		printf("Veuillez entrer votre masque(entre 16 et 23): ");
                     		verifscanf=scanf("%d", &masque);
                     		fflush(stdout);
-				while(getchar()!='\n');
-				tentatives++;
-				if(tentatives==3){
-					printf("Trop de tentatives invalides. Veuillez réessayer plus tard.\n");
-					return;
-				}
-                	}while((masque<16||masque>23||verifscanf!=1)&&tentatives<3);
+                    		
+							while(getchar()!='\n');
+				
+							tentatives++;
+				
+						if(tentatives==3)
+						{
+							printf("Trop de tentatives invalides. Veuillez réessayer plus tard.\n");
+							return;
+						}
+					}
+					while((masque<16||masque>23||verifscanf!=1)&&tentatives<3);
+					
             		tentatives=0;
-		}
-            	else{
-                	do{
+				}
+            	else
+            	{
+                	do
+                	{
               			printf("Veuillez entrer votre masque de sous-réseau (entre 16 et 23) : ");
 		            	verifscanf=scanf("%d", &masque);
-				fflush(stdout);
-				while(getchar()!='\n');
-				tentatives++;
-				if(tentatives==3){
-					printf("Trop de tentatives invalides. Veuillez réessayer plus tard.\n");
-					return;
+						fflush(stdout);
+				
+						while(getchar()!='\n');
+				
+						tentatives++;
+				
+							if(tentatives==3)
+							{
+								printf("Trop de tentatives invalides. Veuillez réessayer plus tard.\n");
+								return;
+							}
+				
+					}
+					
+				while((masque<24||masque>30||verifscanf!=1)&&tentatives<3);
+				tentatives=0;
 				}
-			}while((masque<24||masque>30||verifscanf!=1)&&tentatives<3);
-			tentatives=0;
-		}
 	}
 	else{
 		if(a<127){
@@ -193,34 +254,47 @@ void genereIp(int a, int b, int c, int d, int masque){
 		}
 	}
 	}
-	else{
+	else
+	{
 		printf("Impossible d'avoir un masque pour ces adresses ip\n");
 		masque=0;
 	}
-	if(a==127){
+	
+	if(a==127)
+	{
 		sprintf(type,"spéciale",NULL);
 	}
-	else if((a==10)||(a==172&&(b>=16||b<=31))||(a==192&&b==168)){
+	
+	else if((a==10)||(a==172&&(b>=16||b<=31))||(a==192&&b==168))
+	{
 		sprintf(type,"privée",NULL);
 	}
-	else{
+	
+	else
+	{
 		sprintf(type,"publique",NULL);
 	}
+	
 	ip[4]=masque;
 	EnvoiIp(ip,type);
 }
 
-void filtrage(){
+void filtrage()
+{
 ///////////----------------VAR POUR STOCKER LE MASK CHOISI INIT A 0 -----------------////////////////////
 	int masque = 0;
 	int verifscanf;
 	char sqlQuery[1000];
 
-	do{
+	do
+	{
+		
 		printf("Choisissez un masque \n");
 		verifscanf=scanf("%d", &masque);
 		sprintf(sqlQuery, "SELECT address, type FROM ip_addresses WHERE mask = %d",masque);
-		if (masque<8||masque>30||verifscanf!=1){
+		
+		if (masque<8||masque>30||verifscanf!=1)
+		{
 			printf("Masque incorrect\n");
 			while(getchar()!='\n');
 		}
@@ -238,6 +312,7 @@ void filtrage(){
 		printf("Impossible d'executer la requete %s\n", sqlite3_errmsg(db));
 		sqlite3_free(NULL);
 	}
+	
 	else
 	{
 		printf("Adresse IP pour le masque: %d\n",masque);
@@ -245,12 +320,13 @@ void filtrage(){
 		while (sqlite3_step(stmt) == SQLITE_ROW)
 		{
 			printf("Adresse: %s, type : %s\n", sqlite3_column_text(stmt, 0),sqlite3_column_text(stmt, 1));
-        	}
+        }
 	}
 }
 //////////////////////////////////--------------------------POPUP POUR ASK L'ID A CHERCHER DANS LA DB -----------------------------////////////
 
-int IdDialogBox(const char *user_input_str){
+int IdDialogBox(const char *user_input_str)
+{
  // Create a new dialog box
 	GtkWidget *dialog = gtk_dialog_new ();
 	gtk_window_set_title (GTK_WINDOW (dialog), "Entrer un ID");
@@ -269,74 +345,96 @@ int IdDialogBox(const char *user_input_str){
 	gtk_widget_show_all (dialog);
 	int response = gtk_dialog_run (GTK_DIALOG (dialog));
 	// Check if the user clicked the "Enter" button
-	if (response == GTK_RESPONSE_ACCEPT){
-	    	// Get the user input from the text entry widget
+	
+	if (response == GTK_RESPONSE_ACCEPT)
+	{
+	    // Get the user input from the text entry widget
 		user_input_str = gtk_entry_get_text (GTK_ENTRY (entry));
-     		int user_input = atoi(user_input_str);
+     	int user_input = atoi(user_input_str);
 		gtk_widget_destroy(dialog);
 		return user_input;
    	}
 }
 
 //////////////////---------------------------------------------------------/////////////////////////////////
-char * RequeteId(int user_input, const char *user_input_str) {
+char * RequeteId(int user_input, const char *user_input_str)
+{
     user_input = IdDialogBox(user_input_str);
     char Sql_Query[100];   
     printf("Obtention de l'adresse ayant l'ID %d\n", user_input);
     sprintf(Sql_Query, "SELECT address, mask, type FROM ip_addresses WHERE id = %d;", user_input);
     sqlite3_stmt* stmt = NULL;   
     int rc = sqlite3_prepare_v2(db, Sql_Query, -1, &stmt, NULL);
-    if (rc != SQLITE_OK) { 
+    if (rc != SQLITE_OK)
+    { 
         printf("Impossible d'executer la requete %s\n", sqlite3_errmsg(db));
         sqlite3_free(NULL);
-    } else {
+    } 
+    else 
+    {
         //printf("Voici l'IP qui a l'ID %d:\n", user_input);
-        while (sqlite3_step(stmt) == SQLITE_ROW) {
+        while (sqlite3_step(stmt) == SQLITE_ROW)
+        
+        {
             const char* ipconc = (const char*)sqlite3_column_text(stmt, 0);
             return strdup(ipconc);
         }
     }
+    
     sqlite3_finalize(stmt);
+    
     return NULL;
 }
 
 //////////////////////////////////------------------------------------------------------------->
-void binaire(int ipBin[4][8],const char* user_input_str,int user_input) {
+void binaire(int ipBin[4][8],const char* user_input_str,int user_input) 
+{
 	char* ipconc2;
 	char *token;
 	ipconc2=RequeteId(user_input,user_input_str);
-        int aip[4];
+    int aip[4];
 	int i=0;
 	token=strtok(ipconc2,".");
-	while(token != NULL) {
+	while(token != NULL)
+	
+	{
         // Convertir chaque sous-chaîne en entier et stocker la valeur dans le tableau d'entiers
 		aip[i] = atoi(token);
         	token = strtok(NULL, ".");
 		i++;
-    	}
-	for (int j = 0; j < 4; j++){
+    }
+    
+	for (int j = 0; j < 4; j++)
+	{
 		 int n = aip[j];
-                for (int k = 7; k >= 0; k--){
+		 
+         for (int k = 7; k >= 0; k--)
+                {
                         ipBin[j][7-k] = (n >> k) & 1;
                 }
-        }
+       }
 }
 //////////////////////////////////------------------------------------------------------------->
-void hexadecimal(char ipHexa[9], const char* user_input_str, int user_input){
+void hexadecimal(char ipHexa[9], const char* user_input_str, int user_input)
+{
 	char hexa[3];
 	char* ipconc2;
 	char* token;
 	ipconc2=RequeteId(user_input,user_input_str);
 	int aip[4];
 	int i=0;
-        token=strtok(ipconc2,".");
-        while(token != NULL) {
+    token=strtok(ipconc2,".");
+    
+    while(token != NULL) 
+    {
         // Convertir chaque sous-chaîne en entier et stocker la valeur dans le tableau d'entie>
                 aip[i] = atoi(token);
                 token = strtok(NULL, ".");
                 i++;
-        }
-        for (int j = 0; j < 4; j++){
+     }
+     
+        for (int j = 0; j < 4; j++)
+        {
                 snprintf(hexa, sizeof(hexa), "%02x", aip[j]);
                 strcat(ipHexa, hexa);
         }
@@ -344,33 +442,39 @@ void hexadecimal(char ipHexa[9], const char* user_input_str, int user_input){
 
 //////////////////-----------------BOUTON "AFFICHER UNE ADRESSE"--------/////////////////////////////////
 
-void afficherAdresse(GtkWidget *widget, gpointer data,const char *user_input_str){
+void afficherAdresse(GtkWidget *widget, gpointer data,const char *user_input_str)
+{
 	int user_input;
 	int a,b,c,d,masque;
 	char Sql_Query[100];
-    	int choix2 = 0;
-    	int ipBin[4][8] = {{0}}; // Initialise les valeurs a 0
-    	char ipHexa[9] = {0}; // Initialise les valeurs a 0
-    	GtkWidget *dialog;
+    int choix2 = 0;
+    int ipBin[4][8] = {{0}}; // Initialise les valeurs a 0
+    char ipHexa[9] = {0}; // Initialise les valeurs a 0
+    GtkWidget *dialog;
 	const gchar *message;
-    	dialog = gtk_dialog_new_with_buttons("Afficher une adresse IP", NULL, GTK_DIALOG_MODAL,
+    dialog = gtk_dialog_new_with_buttons("Afficher une adresse IP", NULL, GTK_DIALOG_MODAL,
                                          "Sous sa forme binaire", 1, "Sous sa forme decimale", 2,
                                          "Sous sa forme hexadecimale", 3,NULL);
-    	gtk_widget_show_all(dialog);
-    	switch(gtk_dialog_run(GTK_DIALOG(dialog))){
+    gtk_widget_show_all(dialog);
+    
+    	switch(gtk_dialog_run(GTK_DIALOG(dialog)))
+    	{
         	case 1:
        
-        //SI L'ID NEST PAS NUL, ET SI LA DB CONTIENT L'ID DE L'INPUT, ALORS ENVOIE DE LA REQUETE SQL :
-        //POPUP POUR CHOISIR L'ID A CHERCHER - RequeteId lance dabord la fonction IdDialogBox avant d'operer
+			//SI L'ID NEST PAS NUL, ET SI LA DB CONTIENT L'ID DE L'INPUT, ALORS ENVOIE DE LA REQUETE SQL :
+			//POPUP POUR CHOISIR L'ID A CHERCHER - RequeteId lance dabord la fonction IdDialogBox avant d'operer
 			//RequeteId(user_input,user_input_str);
 			binaire(ipBin,user_input_str,user_input);
-            		message = "L'adresse IP en binaire est : ";
-        		for (int i = 0; i < 4; i++){
-                		for (int j = 0; j < 8; j++) {
+            message = "L'adresse IP en binaire est : ";
+        		for (int i = 0; i < 4; i++)
+        		{
+                		for (int j = 0; j < 8; j++) 
+                		{
                     			message = g_strdup_printf("%s%d", message, ipBin[i][j]);
                 		}
                 	message = g_strdup_printf("%s.", message);
-            		}
+            	}
+            	
         		break;
 
 		case 2:
@@ -379,12 +483,16 @@ void afficherAdresse(GtkWidget *widget, gpointer data,const char *user_input_str
 			sqlite3_stmt* stmt = NULL;
 			sprintf(Sql_Query, "SELECT mask, type FROM ip_addresses WHERE address = '%s';",ipconc);
     			int rc = sqlite3_prepare_v2(db, Sql_Query, -1, &stmt, NULL);
-          		if (rc != SQLITE_OK) {
+          		if (rc != SQLITE_OK)
+          		{
         			printf("Impossible d'executer la requete %s\n", sqlite3_errmsg(db));
         			sqlite3_free(NULL);
     			}
-			else {
-        			while (sqlite3_step(stmt) == SQLITE_ROW) {
+    			
+			else 
+			{
+        			while (sqlite3_step(stmt) == SQLITE_ROW) 
+        		{
 					message=g_strdup_printf("L'adresse IP est la suivante :%s de masque %d et de type %s",ipconc,sqlite3_column_int(stmt,0),sqlite3_column_text(stmt,1));
 				}
 			}
@@ -394,11 +502,15 @@ void afficherAdresse(GtkWidget *widget, gpointer data,const char *user_input_str
                 //POPUP POUR CHOISIR L'ID A CHERCHER 
         		//RequeteId(user_input,user_input_str);
         		hexadecimal(ipHexa,user_input_str,user_input);
-            		message = g_strdup_printf("L'adresse IP en hexadecimal est : %s", ipHexa);
-            		break;
-		default:
-			break;
+            	message = g_strdup_printf("L'adresse IP en hexadecimal est : %s", ipHexa);
+            	break;
+            	
+				default:
+				
+				break;
     	}
+    	
+    	////AFFICHAGE GRAPHIQUE POUR LE SWITCH////
      	GtkWidget *dialog2 = gtk_message_dialog_new(GTK_WINDOW(dialog), GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, message);
     	gtk_window_set_title(GTK_WINDOW(dialog2), "Adresse IP");
     	gtk_dialog_run(GTK_DIALOG(dialog2));
@@ -406,22 +518,26 @@ void afficherAdresse(GtkWidget *widget, gpointer data,const char *user_input_str
     	gtk_widget_destroy(dialog);
 }
 
-void on_button1_clicked(GtkWidget *widget, gpointer data) {
+void on_button1_clicked(GtkWidget *widget, gpointer data)
+{
     	int a, b, c, d, masque;
     	genereIp(a, b, c, d, masque);
 }
 
 
-void on_button2_clicked(GtkWidget *widget, gpointer data, char *user_input_str){
+void on_button2_clicked(GtkWidget *widget, gpointer data, char *user_input_str)
+{
 	afficherAdresse(widget,NULL,user_input_str);
 }
 
-void on_button3_clicked(GtkWidget *widget, gpointer data){
+void on_button3_clicked(GtkWidget *widget, gpointer data)
+{
 	GtkWidget *dialog, *label, *content_area;
 	filtrage();
 }
 
-void on_button4_clicked(GtkWidget *widget, gpointer data) {
+void on_button4_clicked(GtkWidget *widget, gpointer data)
+{
 	GtkWidget *dialog;
 	dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "Au revoir");
 	gtk_dialog_run(GTK_DIALOG(dialog));
@@ -429,7 +545,8 @@ void on_button4_clicked(GtkWidget *widget, gpointer data) {
 }
 
 
-void menu() {
+void menu()
+{
 	GtkWidget *window;
 	GtkWidget *vbox, *hbox;
 	GtkWidget *button1, *button2, *button3, *button4;
@@ -480,7 +597,8 @@ void menu() {
 }
 //////////////////////////////////-----------------------------------------------------------------------------////////////
 //INITIALIZATION DE LA DB EN MEME TEMPS QUE LE MENU POUR LA PERFORMANCE DE L'APP (DB DEJA PRETE QUAND NEEDED)
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 	InitDb();
 	menu();
 	return EXIT_SUCCESS;
