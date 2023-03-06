@@ -3,8 +3,6 @@
 #include <string.h>
 #include <sqlite3.h>
 #include <gtk/gtk.h>
-#include <gtk/gtkeventbox.h>
-#include <glib.h>
 
 // Il est généralement recommandé d'utiliser des constantes pour les valeurs limites de l'adresse IP et du masque.
 // Cela permet de modifier facilement ces limites en un seul endroit si besoin.
@@ -101,8 +99,9 @@ void genereIp(int a, int b, int c, int d, int masque){
        		while(getchar()!='\n');
 		tentatives++;
         	if(tentatives==3){
-			printf("Trop de tentatives invalides, veuillez réessayer plus tard.\n");
-		}
+				printf("Trop de tentatives invalides, veuillez réessayer plus tard.\n");
+				return;
+			}
     	}while((b<MIN_IP_VALUE||b>MAX_IP_VALUE||verifscanf!=1)&&tentatives<3);
     	tentatives=0;
 	ip[1] = b;
@@ -113,7 +112,8 @@ void genereIp(int a, int b, int c, int d, int masque){
                 while(getchar()!='\n');
                 tentatives++;
                 if(tentatives==3){
-                        printf("Trop de tentatives invalides, veuillez réessayer plus tard.\n");
+                    printf("Trop de tentatives invalides, veuillez réessayer plus tard.\n");
+					return;
                 }
         }while((c<MIN_IP_VALUE||c>MAX_IP_VALUE||verifscanf!=1)&&tentatives<3);
         tentatives=0;
@@ -125,7 +125,8 @@ void genereIp(int a, int b, int c, int d, int masque){
                 while(getchar()!='\n');
                 tentatives++;
                 if(tentatives==3){
-                        printf("Trop de tentatives invalides, veuillez réessayer plus tard.\n");
+                    printf("Trop de tentatives invalides, veuillez réessayer plus tard.\n");
+					return;
                 }
         }while((d<MIN_IP_VALUE||d>MAX_IP_VALUE||verifscanf!=1)&&tentatives<3);
         tentatives=0;
